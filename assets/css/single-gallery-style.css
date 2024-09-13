@@ -1,0 +1,27 @@
+.themes-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(120px, 300px));
+    gap: 30px;
+    justify-content: space-between;
+}
+
+.single-theme {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFF8F8;
+    border: 1px solid #F7AAC2;
+    border-radius: 10px;
+}
+
+.item-gallery {
+    display: grid;
+    width: 100%;
+}
+
+.item-gallery img {
+    grid-area: 1/-1;
+    object-fit: cover;
+    width: 100%;
+}

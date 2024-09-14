@@ -67,7 +67,7 @@ function add_allergens_to_product()
     $allergies_list = get_field('allergies_to_reffer', get_the_ID());
     $product_allergens_list_template_path = HE_CHILD_THEME_DIR . '/templates/product/allergenes-list.php';
     if (file_exists($product_allergens_list_template_path)) {
-        include $product_allergens_list_template_path;
+        // include $product_allergens_list_template_path;
     }
 }
 

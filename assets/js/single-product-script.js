@@ -7,10 +7,13 @@
     $(window).on('load', function () {
         // setDefaultAttributes();
         setCustomAttributes();
+        setCustomDesign();
         setCustomerText();
         setAllergensList();
         setSubOptions();
-        updateProductPrice()
+        setImageUpload();
+        updateProductPrice();
+
     });
 
     function setDefaultAttributes() {
@@ -24,18 +27,18 @@
                 $selectGluten = $('select#pa_gluten'),
                 $selectBase = $('select#pa_base'),
                 $optionToToggle = $selectBase.find('option[value="chocolate-vanilla"]'),
-                $otherOptions =$selectBase.find('option:not([value="chocolate-vanilla"])');
-            
-                setAvailableVariations($selectVegan, $selectGluten, $selectBase, $optionToToggle,$otherOptions);
+                $otherOptions = $selectBase.find('option:not([value="chocolate-vanilla"])');
+
+            setAvailableVariations($selectVegan, $selectGluten, $selectBase, $optionToToggle, $otherOptions);
 
             $selectVegan.on('change', function () {
-                setAvailableVariations($(this), $selectGluten, $selectBase, $optionToToggle,$otherOptions);
+                setAvailableVariations($(this), $selectGluten, $selectBase, $optionToToggle, $otherOptions);
             });
             $selectGluten.on('change', function () {
-                setAvailableVariations($selectVegan, $(this), $selectBase, $optionToToggle,$otherOptions);
+                setAvailableVariations($selectVegan, $(this), $selectBase, $optionToToggle, $otherOptions);
             });
         };
-        const setAvailableVariations =($selectVegan, $selectGluten, $selectBase, $optionToToggle,$otherOptions)=>{
+        const setAvailableVariations = ($selectVegan, $selectGluten, $selectBase, $optionToToggle, $otherOptions) => {
             if ($selectVegan.val() == 'true' && $selectGluten.val() == 'true') {
                 $optionToToggle.prop({
                     'hidden': false,
@@ -45,10 +48,10 @@
                 $otherOptions.prop({
                     'hidden': true,
                     'disable': true,
-                    'selected': false 
+                    'selected': false
                 });
                 $selectBase.val($optionToToggle.val());
-            } else{
+            } else {
                 $optionToToggle.prop({
                     'hidden': true,
                     'disable': true,
@@ -58,9 +61,9 @@
                     'hidden': false,
                     'disable': false,
                 });
-                if($selectBase.val() == $optionToToggle.val()) $selectBase.val('');
+                if ($selectBase.val() == $optionToToggle.val()) $selectBase.val('');
             }
-        }; 
+        };
         const disableFirstOption = () => {
             $allSelectEl.find('option:first-child').prop({
                 'disabled': true,
@@ -70,7 +73,7 @@
         };
 
         disableFirstOption();
-        if(productId == 28) setBaseByGlutenVeganAttr();
+        if (productId == 28) setBaseByGlutenVeganAttr();
         $booleanCells.each(function () {
             const $select = $(this).find('select'),
                 $options = $select.find('option'),
@@ -123,13 +126,13 @@
                 }
             }, 20);
         });
-        $resetVariationBtn.on('click', ()=>{
+        $resetVariationBtn.on('click', () => {
             $('.inital-field > input[type="checkbox"]').prop('disabled', true);
-            $('select#pa_gluten, select#pa_vegan').each(function(){
+            $('select#pa_gluten, select#pa_vegan').each(function () {
                 $(this).find('option[value="false"]').prop('selected', true);
-                setTimeout(()=>{
+                setTimeout(() => {
                     $(this).val('false').change();
-                },10)
+                }, 10)
             });
         });
     }
@@ -338,7 +341,7 @@
                 $(this).siblings('.input-as-text').text($(this).val());
 
                 const fullText = $(this).closest('label').length
-                    ? $.makeArray($(this).closest('label').find('span').map(function(){return $(this).text()})).join(' ')
+                    ? $.makeArray($(this).closest('label').find('span').map(function () { return $(this).text() })).join(' ')
                     : $(this).val();
 
                 $hiddenInput.val(fullText);
@@ -420,7 +423,7 @@
                 const containerHeight = $allergensContainer.height();
                 const windowHeight = $(window).height();
                 const scrollTo = containerTop + containerHeight / 2 - windowHeight / 2;
-        
+
                 // Animate the scroll to the calculated position
                 $('html, body').animate({ scrollTop: scrollTo }, 'slow');
             }, 10);
@@ -543,5 +546,202 @@
                 });
             }
         });
+    }
+
+    function setCustomDesign() {
+        const $container = $('.customize-design-container');
+        const $attributesWrapper = $container.find('.attributes-wrapper');
+        const $attributes = $attributesWrapper.find('.attribute-wrapper');
+        const $toggleAttributesBtn = $attributesWrapper.find('.attr-heading button');
+        const $imageCanvas = $container.find('.image-canvas');
+
+        $toggleAttributesBtn.on('click', function () {
+            const $attribute = $(this).closest('.attribute-wrapper');
+            $attributes.removeClass('active');
+            $attribute.addClass('active');
+            $attributesWrapper.addClass('active');
+        });
+
+        $attributes.each(function () {
+            const $attribute = $(this);
+            setGallerySearch($attribute);
+            setAttributeOptionSelect($attribute);
+        });
+    }
+    function setAttributeOptionSelect($attribute) {
+        const $options = $attribute.find('.gallery-content .gallery-item');
+        const $optionsRadioInput = $options.find('input[type="radio"]');
+        const $attributesWrapper = $attribute.closest('.attributes-wrapper');
+        const $canvas = $attribute.closest('.customize-design-container').find('.image-canvas');
+
+        $optionsRadioInput.on('change', function () {
+            const selectionUrl = $(this).val();
+
+            $attributesWrapper.removeClass('active');
+            $attribute.removeClass('active');
+            setCanvasDisplay(selectionUrl, $canvas);
+        });
+    }
+
+    function setGallerySearch($attribute) {
+        const $searchInput = $attribute.find('input[type="search"]');
+        const $galleryItems = $attribute.find('.gallery-item');
+
+        $searchInput.on('input', function () {
+            const term = $(this).val().toLowerCase();
+
+            $galleryItems.each(function () {
+                const $item = $(this);
+                const terms = $item.data('terms').toLowerCase();
+
+                terms.includes(term)
+                    ? $item.show()
+                    : $item.hide();
+            });
+        });
+    }
+    function setImageUpload() {
+        $('.file-upload-wrapper').each(function () {
+            const $wrapper = $(this);
+            const $attributeWrapper = $wrapper.closest('.attribute-wrapper');
+            const $attributesWrapper = $wrapper.closest('.attributes-wrapper');
+            const $container = $wrapper.closest('.customize-design-container');
+            const $fileInput = $wrapper.find('.file-input');
+            const $uploadBox = $wrapper.find('.upload-box');
+            const $changeImageBtn = $wrapper.find('.change-image-btn');
+            const $canvas = $wrapper.closest('.customize-design-container').find('.image-canvas');
+
+            // Trigger file input when clicking the box
+            $uploadBox.on('click', function () {
+                $fileInput.trigger('click');
+            });
+
+            // Handle file input change
+            $fileInput.on('change', function (e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    setCanvasDisplay(file, $canvas); // Call to display image on canvas
+                    $attributeWrapper.removeClass('active');
+                    $attributesWrapper.removeClass('active');
+                }
+            });
+
+            // Drag & drop functionality
+            $uploadBox.on('dragover', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $wrapper.addClass('dragging');
+            });
+
+            $uploadBox.on('dragleave', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $wrapper.removeClass('dragging');
+            });
+
+            $uploadBox.on('drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $wrapper.removeClass('dragging');
+
+                const files = e.originalEvent.dataTransfer.files;
+                const file = files[0];
+                $fileInput[0].files = files;
+
+                if (file && file.type.startsWith('image/')) {
+                    setCanvasDisplay(file, $canvas);  // Call to display image on canvas
+                    $attributeWrapper.removeClass('active');
+                    $attributesWrapper.removeClass('active');
+                }
+            });
+
+            // Handle 'Change Image' button click
+            $changeImageBtn.on('click', function () {
+                $fileInput.trigger('click'); // Reopen file input dialog
+            });
+        });
+    }
+    function setCanvasDisplay(fileOrUrl, $canvas) {
+        const ctx = $canvas[0].getContext('2d');
+        let canvasRotation = 0;
+        let textBoxes = [];
+    
+        const img = new Image();
+        if (fileOrUrl instanceof File) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(fileOrUrl);
+        } else {
+            img.src = fileOrUrl;
+        }
+    
+        img.onload = function () {
+            const isPortrait = img.height > img.width;
+            if (isPortrait) {
+                resizeCanvas($canvas, img.height, img.width);
+                drawImageRotated($canvas, img, -Math.PI / 2);
+            } else {
+                resizeCanvas($canvas, img.width, img.height);
+                drawImage($canvas, img);
+            }
+            $canvas.show();
+        };
+    
+        // Rotate canvas left
+        $('.rotate-canvas-button').on('click', function () {
+            const $button = $(this);
+            const currentCanvasOffsetTop = $canvas.offset().top;
+            if($button.hasClass('left')) {
+                canvasRotation -= 90;
+            }
+            if($button.hasClass('right')) {
+                canvasRotation += 90;
+            }
+            canvasRotation = canvasRotation % 360;
+            $canvas.css('transform', `rotate(${canvasRotation}deg)`);
+            $canvas.offset({ top: currentCanvasOffsetTop });
+        });
+        
+        // Add a new text box
+        $('#add-text-box').on('click', function () {
+            addTextBox($canvas);
+        });
+    }
+    
+    // Resize the canvas and adjust its dimensions
+    function resizeCanvas($canvas, width, height) {
+        $canvas[0].width = width;
+        $canvas[0].height = height;
+    }
+    
+    // Draw the image normally on the canvas
+    function drawImage($canvas, img) {
+        const ctx = $canvas[0].getContext('2d');
+        ctx.clearRect(0, 0, $canvas[0].width, $canvas[0].height);
+        ctx.drawImage(img, 0, 0, $canvas[0].width, $canvas[0].height);
+    }
+    
+    // Draw the image rotated on the canvas
+    function drawImageRotated($canvas, img, rotationAngle) {
+        const ctx = $canvas[0].getContext('2d');
+        ctx.save();
+        ctx.translate($canvas[0].width / 2, $canvas[0].height / 2);
+        ctx.rotate(rotationAngle);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+        ctx.restore();
+    }
+    
+    // Add text box to the canvas (placeholder function)
+    function addTextBox($canvas) {
+        const ctx = $canvas[0].getContext('2d');
+        const sampleText = 'Sample Text';
+        const x = 50;
+        const y = 50;
+    
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#000000';
+        ctx.fillText(sampleText, x, y);
     }
 })(jQuery);

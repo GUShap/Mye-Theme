@@ -1,17 +1,4 @@
 <?php
-add_action('cake_svg_45', function () {
-  require_once CAKECIUOS_CHILD_THEME_DIR . 'assets/images/cake-svg-45.php';
-});
-
-add_action('cake_svg_180', function () {
-  require_once CAKECIUOS_CHILD_THEME_DIR . 'assets/images/cake-svg-180.php';
-});
-
-add_action('cake_svg_270', function () {
-  require_once CAKECIUOS_CHILD_THEME_DIR . 'assets/images/cake-svg-270.php';
-});
-
-// Add this code to your theme's functions.php or a custom plugin file
 
 // Callback function for the AJAX action
 function get_cake_themes_callback()

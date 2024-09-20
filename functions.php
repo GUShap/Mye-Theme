@@ -55,7 +55,10 @@ function enqueue_custom_script()
             'productId' => get_the_ID()
         ];
         
-        wp_enqueue_script('single-product-script', get_stylesheet_directory_uri() . '/assets/js/single-product-script.js', array(), time(), true);
+        wp_enqueue_script('jquery-ui','https://code.jquery.com/ui/1.14.0/jquery-ui.min.js', array('jquery'), '1.14.0');
+        wp_enqueue_script('htmltocanvas','https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', array('jquery'), '1.4.1');
+        wp_enqueue_script('jscolor-lib',get_stylesheet_directory_uri() . '/assets/lib/color-picker/jscolor.min.js', array('jquery'), '2.3.6');
+        wp_enqueue_script('single-product-script', get_stylesheet_directory_uri() . '/assets/js/single-product-script.js', array('jquery'), time(), true);
         wp_localize_script('single-product-script', 'siteConfig',  $siteConfig);
         wp_enqueue_style( 'single-product-style', get_stylesheet_directory_uri() . '/assets/css/variable-product-style.css', array(), time(), 'all' );
     }

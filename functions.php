@@ -56,6 +56,7 @@ function enqueue_custom_script()
         ];
         
         wp_enqueue_script('jquery-ui','https://code.jquery.com/ui/1.14.0/jquery-ui.min.js', array('jquery'), '1.14.0');
+        wp_enqueue_script('touch-punch','https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js', array('jquery','jquery-ui','jquery-ui-draggable'), '0.2.3');
         wp_enqueue_script('htmltocanvas','https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', array('jquery'), '1.4.1');
         wp_enqueue_script('jscolor-lib',get_stylesheet_directory_uri() . '/assets/lib/color-picker/jscolor.min.js', array('jquery'), '2.3.6');
         wp_enqueue_script('single-product-script', get_stylesheet_directory_uri() . '/assets/js/single-product-script.js', array('jquery'), time(), true);

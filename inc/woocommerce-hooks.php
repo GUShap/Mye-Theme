@@ -1,13 +1,19 @@
 <?php
 
 /***PRODUCT***/
+add_action('woocommerce_after_variations_table', 'add_custom_data_button', 0, 9);
+function add_custom_data_button(){
+    echo '<button type="button" class="custom-data-toggle-button">עיצוב עוגה</button>';
+}
 
 add_action('woocommerce_after_variations_table', 'start_custom_data_container', 0, 10);
 
 function start_custom_data_container()
-{ ?>
-    <div class="custom-data-container">
-    <?php }
+{
+    echo '<div class="custom-data-container">';
+}
+
+
 
 add_action('woocommerce_after_variations_table', 'add_custom_design', 0, 11);
 function add_custom_design()
@@ -57,9 +63,9 @@ function add_customer_text_to_product()
 add_action('woocommerce_after_variations_table', 'end_custom_data_container', 0, 15);
 
 function end_custom_data_container()
-{ ?>
-    </div>
-<?php }
+{
+    echo '</div>';
+}
 
 add_action('woocommerce_after_variations_table', 'add_allergens_to_product', 0, 20);
 function add_allergens_to_product()
@@ -67,7 +73,7 @@ function add_allergens_to_product()
     $allergies_list = get_field('allergies_to_reffer', get_the_ID());
     $product_allergens_list_template_path = HE_CHILD_THEME_DIR . '/templates/product/allergenes-list.php';
     if (file_exists($product_allergens_list_template_path)) {
-        // include $product_allergens_list_template_path;
+        include $product_allergens_list_template_path;
     }
 }
 
@@ -363,14 +369,3 @@ function admin_order_item_values($_product, $item, $item_id = null)
         include $allergens_column_template_path;
     }
 }
-/**/
-
-
-
-// USE THIS TO ADD ORDER CUSTOM NOTES
-// add_action( 'woocommerce_admin_order_data_after_billing_address', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
-// function my_custom_checkout_field_display_admin_order_meta($order)
-// {
-//   $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
-//   echo '<p><strong>' . __('My Field Name') . ':</strong> ' . get_post_meta($order_id, 'my_field_name', true) . '</p>';
-// }

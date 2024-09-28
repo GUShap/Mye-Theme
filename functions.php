@@ -30,6 +30,7 @@ require_once HE_CHILD_THEME_DIR . 'inc/admin-functions.php';
 require_once HE_CHILD_THEME_DIR . 'inc/theme-actions.php';
 require_once HE_CHILD_THEME_DIR . 'inc/theme-filters.php';
 require_once HE_CHILD_THEME_DIR . 'inc/theme-shortcodes.php';
+require_once HE_CHILD_THEME_DIR . 'inc/theme-ajax.php';
 require_once HE_CHILD_THEME_DIR . 'inc/admin-hooks.php';
 require_once HE_CHILD_THEME_DIR . 'inc/woocommerce-hooks.php';
 // END ENQUEUE PARENT ACTION

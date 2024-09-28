@@ -4,18 +4,26 @@
     const productId = +siteConfig.productId
     // 
     $(window).on('load', function () {
-        setCustomAttributes();
+        setCustomDataToggle();
+        // setCustomAttributes();
         setCustomDesign();
-        setCustomerText();
+        // setCustomerText();
         setAllergensList();
-        setSubOptions();
+        // setSubOptions();
         setImageUpload();
-        updateProductPrice();
+        // updateProductPrice();
         setColorPicker();
         setStepsButtons();
     });
 
+    function setCustomDataToggle() { 
+        const $customDataContainer = $('.custom-data-container');
+        const $toggleBtn = $('.custom-data-toggle-button');
 
+        $toggleBtn.on('click', function () {
+            $customDataContainer.toggleClass('active');
+        });
+    }
     function setDefaultAttributes() {
         const $tabel = $('form.variations_form table.variations'),
             $allSelectEl = $tabel.find('td.value select'),
@@ -547,7 +555,6 @@
             }
         });
     }
-
     function setCustomDesign() {
         const $container = $('.customize-design-container');
         const $attributesWrapper = $container.find('.attributes-wrapper');
@@ -579,10 +586,15 @@
 
         $optionsRadioInput.on('change', function () {
             const selectionUrl = $(this).val();
+            const imageData = {
+                'attribute_id': $attribute.data('id'),
+                'option_id': this.id,
+                'url': selectionUrl
+            }
             $imageSelectionWrapper.removeClass('active');
             $imageSelectionWrapper.next().addClass('active');
             setCanvasDisplay(selectionUrl, $canvas);
-            setSingleImagePreview($attribute, selectionUrl);
+            setSingleImagePreview($attribute, imageData);
             setAttributeActiveButtons($attribute);
         });
 
@@ -595,9 +607,15 @@
             $checkedOptions.length >= limit
                 ? $uncheckedOptions.prop('disabled', true)
                 : $uncheckedOptions.prop('disabled', false);
-            const imagesURLS = Array.from($checkedOptions).map(el => el.value);
+            const imagesData = Array.from($checkedOptions).map(el => {
+                return {
+                    'attribute_id': $attribute.data('id'),
+                    'option_id': el.id,
+                    'url': el.value
+                }
+            });
 
-            setMultipleImagePreview($attribute, imagesURLS);
+            setMultipleImagePreview($attribute, imagesData);
         });
     }
     function setGallerySearch($attribute) {
@@ -621,6 +639,7 @@
         $('.image-selection-wrapper').each(function () {
             const $wrapper = $(this);
             const $fileInput = $wrapper.find('.file-input');
+            const $hiddenFileInput = $wrapper.find('.file-input-value');
             const $uploadBox = $wrapper.find('.upload-box');
             const $changeImageBtn = $wrapper.find('.change-image-btn');
             const $canvas = $wrapper.closest('.customize-design-container').find('.image-canvas');
@@ -637,13 +656,19 @@
             $fileInput.on('change', function (e) {
                 const file = e.target.files[0];
                 const fileURL = URL.createObjectURL(file);
+                const imageData = {
+                    'attribute_id': $attribute.data('id'),
+                    'option_id': 'custom_image',
+                    'url': fileURL
+                }
                 if (file && file.type.startsWith('image/')) {
                     setCanvasDisplay(file, $canvas); // Call to display image on canvas
-                    setSingleImagePreview($attribute, fileURL);
+                    setSingleImagePreview($attribute, imageData);
                     $wrapper.removeClass('active');
                     $wrapper.next().addClass('active');
                     $nextStepBtn.addClass('active');
                     $prevStepBtn.addClass('active');
+                    $hiddenFileInput.val(fileURL);
                 }
             });
 
@@ -671,12 +696,18 @@
 
                 if (file && file.type.startsWith('image/')) {
                     const fileURL = URL.createObjectURL(file);
-                    setSingleImagePreview($attribute, fileURL);
+                    const imageData = {
+                        'attribute_id': $attribute.data('id'),
+                        'option_id': 'custom_image',
+                        'url': fileURL
+                    }
+                    setSingleImagePreview($attribute, imageData);
                     setCanvasDisplay(file, $canvas);  // Call to display image on canvas
                     $wrapper.removeClass('active');
                     $wrapper.next().addClass('active');
                     $nextStepBtn.addClass('active');
                     $prevStepBtn.addClass('active');
+                    $hiddenFileInput.val(fileURL);
                 }
             });
 
@@ -894,14 +925,15 @@
             });
         });
     }
-    function setImageSelection($attributeWrapper) {
-        const $canvasWrapper = $attributeWrapper.find('.canvas-wrapper');
+    function setImageSelection($attribute) {
+        const $canvasWrapper = $attribute.find('.canvas-wrapper');
         const $canvasElement = $canvasWrapper.find('.image-canvas');
         const $controlsWrapper = $canvasWrapper.find('.controls-wrapper');
         const $saveImageButton = $('#next-step');
 
         $saveImageButton.on('click', async function () {
             const isCanvasStep = $canvasWrapper.hasClass('active');
+            const optionID = $attribute.find('.image-preview img').data('option');
             if (!isCanvasStep) return;
             const canvasRect = $canvasElement[0].getBoundingClientRect();
             const dimensions = {
@@ -910,11 +942,16 @@
                 width: canvasRect.width,
                 height: canvasRect.height,
             }
-            setSingleImagePreview($attributeWrapper, '', true);
+            setSingleImagePreview($attribute, '', true);
             $controlsWrapper.find('.active').removeClass('active');
             const imageDataURL = await generateCanvasImage($canvasWrapper, dimensions);
+            const imageData = {
+                'attribute_id': $attribute.data('id'),
+                'option_id': optionID,
+                'url': imageDataURL
+            };
             localStorage.setItem('imageDataURL', imageDataURL);
-            setSingleImagePreview($attributeWrapper, imageDataURL);
+            setSingleImagePreview($attribute, imageData);
         });
     }
     async function generateCanvasImage($element, dimensions) {
@@ -926,21 +963,21 @@
         });
     }
 
-    function setSingleImagePreview($container, imageURL, isLoader = false) {
+    function setSingleImagePreview($container, imageData, isLoader = false) {
         const $imagePreview = $container.find('.image-preview .preview-wrapper');
         if (isLoader) {
             $imagePreview.html('<div class="loader"></div>');
             return;
         } else {
-            $imagePreview.html('<img src="' + imageURL + '" alt="Canvas Preview" />');
+            $imagePreview.html(`<img src="${imageData.url}" data-attribute="${imageData.attribute_id}" data-option="${imageData.option_id}" alt="Canvas Preview" />`);
         }
     }
 
-    function setMultipleImagePreview($container, imagesURLS) {
+    function setMultipleImagePreview($container, imagesData) {
         const $imagePreview = $container.find('.image-preview .preview-wrapper');
         let imagesHTML = '';
-        imagesURLS.forEach(url => {
-            imagesHTML += `<img src="${url}" alt="Canvas Preview" />`;
+        imagesData.forEach(imageDate => {
+            imagesHTML += `<img src="${imageDate.url}" data-attribute="${imageDate.attribute_id}" data-option="${imageDate.option_id}" alt="Canvas Preview" />`;
         });
 
         $imagePreview.html(imagesHTML);
@@ -955,6 +992,7 @@
         const $changeSelectionBtn = $container.find(".change-selection-button");
         const $finishDesignBtn = $container.find("#finish-design");
         const $backToEditBtn = $container.find("#back-to-edit");
+        const $addToItemBtn = $container.find("#add-to-item");
 
         $container.find('.footing-wrapper button').on('click', function () {
             $(this).blur();
@@ -1020,6 +1058,12 @@
             $container.find('.totals-summary').removeClass('active');
             $container.find('.attributes-wrapper').addClass('active');
         });
+
+        $addToItemBtn.on('click', async function () {
+            const itemDataRes = await addAttributesToItemData($container);
+            if (itemDataRes.status === 'success') {
+            }
+        });
     }
 
     function setAttributeActiveButtons($attribute) {
@@ -1079,5 +1123,40 @@
                     : $reffSummaryLineContent.removeClass('multiple');
             }
         });
+    }
+
+    async function addAttributesToItemData($container) {
+        const $attributes = $container.find('.attribute-wrapper');
+        const itemData = {};
+
+        $attributes.each(function () {
+            const $attribute = $(this);
+            const $previewImages = $attribute.find('.image-preview .preview-wrapper img');
+
+            $previewImages.each(function () {
+                const $image = $(this);
+                const attrID = $image.data('attribute');
+                const optionID = $image.data('option');
+                const url = $image.attr('src');
+
+                if (!itemData[attrID]) itemData[attrID] = {};
+                itemData[attrID][optionID] = url;
+            });
+        });
+
+        return await $.ajax(
+            {
+                url: siteConfig.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'add_attributes_to_item',
+                    item_data: itemData
+                },
+                success: function (response) {
+                    return response;
+                }
+            }
+        );
+
     }
 })(jQuery);

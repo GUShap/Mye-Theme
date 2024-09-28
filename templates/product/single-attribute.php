@@ -44,6 +44,7 @@ if (!defined('ABSPATH'))
                 </div>
                 <div class="image-upload-wrapper active">
                     <div class="file-upload-wrapper">
+                        <input type="hidden" class="file-input-value" name="<?php echo "attributes[$attr_id]" ?>" value="">
                         <input type="file" class="file-input" accept="image/*" />
                         <div class="upload-box">
                             <p>לבחירת תמונה ניתן לגרור או ללחוץ כאן</p>

@@ -1,0 +1,101 @@
+#custom-menu-cart .cart_item {
+    display: flex;
+}
+#custom-menu-cart .product-thumbnail {
+    display: none;
+}
+
+#custom-menu-cart .cart_item .variation {
+    align-items: center;
+    margin-right: 5px;
+}
+
+#custom-menu-cart .cart_item .variation dt.variation-gluten,
+#custom-menu-cart .cart_item .variation dt.variation-vegan{
+    display: none;
+}
+
+ul.custom-attributes-list li{
+    white-space: nowrap;
+}
+ul.custom-attributes-list li p{
+    direction: ltr;
+    display: inline;
+}
+table.shop_table .row-wrapper{
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+table.shop_table .variation{
+    margin-right: 8px;
+}
+
+table.shop_table .variation dt{
+    margin: 0 !important;
+}
+
+.custom-item-data-container{
+    order: 1;
+    position: relative;
+}
+
+.custom-item-data-container a.custom-item-data-toggle{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    padding: 3px 5px;
+    border-radius: 0 0 6px 6px;
+    color: var(--product-link-normal-color,#000) !important;
+    transition: all 0.2s linear;
+}
+.custom-item-data-container.active a.custom-item-data-toggle{
+    background-color: #DFE3E8;
+}
+
+.custom-item-data-container a.custom-item-data-toggle svg{
+    width: 15px;
+}
+
+.custom-item-data-container .content{
+    transition: all 0.2s linear;
+}
+
+.custom-item-data-container:not(.active) .content{
+    display: none;
+    animation:fadeIn 0.2s linear reverse forwards;
+}
+
+.custom-item-data-container.active .content{
+    display: flex;
+    gap: 20px;
+    padding: 8px 20px;
+    position: absolute;
+    bottom: 100%;
+    background-color: #DFE3E8;
+    border-radius: 6px 6px 0 6px;
+    animation: fadeIn 0.2s linear forwards;
+}
+
+.custom-item-data-container .content h3{
+    font-size: 16px;
+    margin: 0 0 5px;
+}
+
+.custom-item-data-container .content ul li::marker{
+    margin-left: 5px !important;
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

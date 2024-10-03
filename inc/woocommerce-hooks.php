@@ -1,21 +1,18 @@
 <?php
 
 /***PRODUCT***/
-add_action('woocommerce_after_variations_table', 'add_custom_data_button', 0, 9);
-function add_custom_data_button(){
+function add_custom_data_button()
+{
     echo '<button type="button" class="custom-data-toggle-button">עיצוב עוגה</button>';
 }
-
-add_action('woocommerce_after_variations_table', 'start_custom_data_container', 0, 10);
+add_action('woocommerce_after_variations_table', 'add_custom_data_button', 0, 9);
 
 function start_custom_data_container()
 {
     echo '<div class="custom-data-container">';
 }
+add_action('woocommerce_after_variations_table', 'start_custom_data_container', 0, 10);
 
-
-
-add_action('woocommerce_after_variations_table', 'add_custom_design', 0, 11);
 function add_custom_design()
 {
     // Retrieve custom attributes using the current post ID
@@ -28,46 +25,14 @@ function add_custom_design()
     // Construct the shortcode with JSON encoded attributes and boolean value for enable_custom_text
     echo do_shortcode('[customize_design custom_attributes="' . implode(',', $custom_attributes) . '" enable_custom_text="' . $enable_custom_text . '"]');
 }
-
-// add_action('woocommerce_after_variations_table', 'add_custom_attributes_to_product', 0, 11);
-function add_custom_attributes_to_product()
-{
-    $custom_attributes = get_field('attribute_options', get_the_ID());
-    $custom_attributes_template_path = HE_CHILD_THEME_DIR . '/templates/product/custom-attributes.php';
-    if (empty($custom_attributes))
-        return;
-
-    if (file_exists($custom_attributes_template_path)) {
-        include $custom_attributes_template_path;
-    }
-
-}
-
-// add_action('woocommerce_after_variations_table', 'add_customer_text_to_product', 0, 12);
-
-function add_customer_text_to_product()
-{
-    $customer_text = [
-        'enable_text' => !empty(get_field('enable_text', get_the_ID())),
-        'text_attributes' => get_field('text_attributes', get_the_ID()),
-    ];
-    $customer_text_template_path = HE_CHILD_THEME_DIR . '/templates/product/customize-text.php';
-    if (empty($customer_text) || !$customer_text['enable_text'])
-        return;
-
-    if (file_exists($customer_text_template_path)) {
-        include $customer_text_template_path;
-    }
-}
-
-add_action('woocommerce_after_variations_table', 'end_custom_data_container', 0, 15);
+add_action('woocommerce_after_variations_table', 'add_custom_design', 0, 11);
 
 function end_custom_data_container()
 {
     echo '</div>';
 }
+add_action('woocommerce_after_variations_table', 'end_custom_data_container', 0, 15);
 
-add_action('woocommerce_after_variations_table', 'add_allergens_to_product', 0, 20);
 function add_allergens_to_product()
 {
     $allergies_list = get_field('allergies_to_reffer', get_the_ID());
@@ -76,85 +41,15 @@ function add_allergens_to_product()
         include $product_allergens_list_template_path;
     }
 }
+add_action('woocommerce_before_add_to_cart_quantity', 'add_allergens_to_product', 0, 20);
 
-add_filter('woocommerce_add_cart_item_data', 'custom_add_cart_item_data', 10, 4);
-function custom_add_cart_item_data($cart_item_data, $product_id, $variation_id, $quantity)
+function add_price_addition_input()
 {
-    if (isset($_POST['quantity']) && is_numeric($_POST['quantity'])) {
-        foreach ($_POST as $attr_label => $attr_value) {
-            $is_custom_attr = str_contains($attr_label, 'gs_custom_');
-            if ($is_custom_attr) {
-                $attribute_price = get_field('attribute_price', $attr_value);
-                $attribute_name = get_the_title($attr_value);
-                $is_price_per_option = !empty(get_field('price_per_options', $attr_value)) ? true : false;
-                $data_label = str_replace('gs_custom_', '', $attr_label);
-                if ($is_price_per_option) {
-                    $length = count(explode(',', $_POST[$data_label . '-data']));
-                    $attribute_price *= $length;
-                }
-                $cart_item_data['custom_data'][$data_label] = [
-                    'price' => $attribute_price,
-                    'name' => '<' . $data_label . '>' . $attribute_name,
-                    'options' => !empty($_POST[$data_label . '-data']) ? $_POST[$data_label . '-data'] : 'true'
-                ];
-                if ($data_label == 'theme' && !empty($attr_value)) {
-                    $theme_name = $_POST['theme-data'];
-                    $cart_item_data['custom_data']['theme_image'] = [
-                        'name' => '<delete>קישור תמונה',
-                        'options' => $_POST[$theme_name . '-sub-option']
-                    ];
-                    $cart_item_data['custom_data'][$data_label]['options'] = $_POST['theme-option'];
-                }
-                $cart_item_data[$data_label]['value'] = !empty($_POST[$data_label . '-data']) ? $_POST[$data_label . '-data'] : 'true';
-            }
-        }
-        // Handles user text
-        if (!empty($_POST['customer_text'])) {
-            $cart_item_data['custom_data']['customer_text'] = [
-                'name' => 'טקסט על הקינוח',
-                'options' => $_POST['customer_text']
-            ];
-        }
-        // Handles user uploaded image
-        if (isset($_FILES['user-image-upload']) && !empty($_FILES['user-image-upload']['name'])) {
-            $image_upload = $_FILES['user-image-upload'];
-
-            // Check if it's a valid image file type
-            $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml');
-            if (in_array($image_upload['type'], $allowed_types)) {
-                // Define the custom directory path
-                $custom_upload_dir = 'users_uploaded_images'; // Change this to your desired directory name
-
-                // Get the WordPress upload directory
-                $upload_dir = wp_upload_dir();
-
-                // Create the custom directory if it doesn't exist
-                $custom_upload_path = $upload_dir['basedir'] . '/' . $custom_upload_dir;
-                if (!file_exists($custom_upload_path)) {
-                    wp_mkdir_p($custom_upload_path);
-                }
-
-                $original_filename = basename($image_upload['name']);
-
-                // Replace spaces with underscores in the filename
-                $cleaned_filename = str_replace(' ', '_', $original_filename);
-
-                // Define the upload path within the custom directory
-                $upload_path = $custom_upload_path . '/' . $cleaned_filename;
-
-                // Move the uploaded file to the custom directory
-                move_uploaded_file($image_upload['tmp_name'], $upload_path);
-
-                // Store the cleaned image URL in the cart item data
-                $custom_image_url = $upload_dir['baseurl'] . '/' . $custom_upload_dir . '/' . $cleaned_filename;
-                $cart_item_data['custom_data']['theme']['options'] = 'תמונת משתמש/ת';
-                $cart_item_data['custom_data']['theme_image']['options'] = $custom_image_url;
-            }
-        }
-        $cart_item_data['allergens_list'] = $_POST['allergens-for-product'];
-    }
-    return $cart_item_data;
+    echo '<input type="hidden" name="added_price" id="added-price" value="0">';
+    echo '<input type="hidden" name="custom_attributes" id="custom-attributes" value="">';
 }
+add_action('woocommerce_after_add_to_cart_button', 'add_price_addition_input', 0, 21);
+
 function custom_variable_product_price($price, $product)
 {
     if ($product->is_type('variable')) {
@@ -167,23 +62,35 @@ function custom_variable_product_price($price, $product)
     }
     return $price;
 }
-
 add_filter('woocommerce_variable_sale_price_html', 'custom_variable_product_price', 10, 2);
 add_filter('woocommerce_variable_price_html', 'custom_variable_product_price', 10, 2);
+
+// Add attribute label as data-attribute-label to the variation select element
+
+function add_label_as_data_attribute_to_variation_select($html, $args)
+{
+    // Get the attribute label
+    $attribute_slug = $args['attribute'] ?? '';
+    if ($attribute_slug) {
+        $attribute_label = wc_attribute_label($attribute_slug);
+
+        // Modify the select tag to add the data-attribute-label
+        $html = str_replace('<select', '<select data-label="' . esc_attr($attribute_label) . '"', $html);
+    }
+
+    return $html;
+}
+add_filter('woocommerce_dropdown_variation_attribute_options_html', 'add_label_as_data_attribute_to_variation_select', 10, 2);
+
+/********************/
 
 /***CART & CHECKOUT***/
 function update_cart_item_price($cart_object)
 {
     foreach ($cart_object->cart_contents as $cart_item_key => $cart_item) {
         $price = +$cart_item['data']->get_price();
-        if (isset($cart_item['custom_data'])) {
-            foreach ($cart_item['custom_data'] as $data_item) {
-                if (!empty($data_item['price'])) {
-                    $price += +$data_item['price'];
-                }
-            }
-        }
-        $cart_item['data']->set_price($price);
+        $added_price = $cart_item['added_price'] ?? 0;
+        $cart_item['data']->set_price($price + $added_price);
     }
 }
 add_action('woocommerce_before_calculate_totals', 'update_cart_item_price', 10, 1);
@@ -192,7 +99,7 @@ function custom_modify_item_attributes($item_data, $cart_item)
 {
     if ($cart_item['variation_id'] > 0) {
 
-        $counter = 0;
+        // $counter = 0;
         foreach ($item_data as $idx => $item) {
             if ($item['key'] == 'טבעוני' || $item['key'] == 'ללא גלוטן') {
                 if ($item['value'] == 'לא טבעוני' || $item['value'] == 'רגיל')
@@ -206,13 +113,13 @@ function custom_modify_item_attributes($item_data, $cart_item)
             }
         }
 
-        foreach ($cart_item['custom_data'] as $custom_data_label => $custom_data_value) {
-            $item_index = count($item_data) + $counter;
-            $item_data[$item_index]['key'] = $custom_data_value['name'];
-            $item_data[$item_index]['value'] = $custom_data_value['options'] !== 'true' ? $custom_data_value['options'] : 'כן';
-            // if($custom_data_label === 'theme') $item_data[$item_index]['value'] = $custom_data_value['thumbnail_url'];
-            $counter++;
-        }
+        // foreach ($cart_item['custom_data'] as $custom_data_label => $custom_data_value) {
+        //     $item_index = count($item_data) + $counter;
+        //     $item_data[$item_index]['key'] = $custom_data_value['name'];
+        //     $item_data[$item_index]['value'] = $custom_data_value['options'] !== 'true' ? $custom_data_value['options'] : 'כן';
+        //     // if($custom_data_label === 'theme') $item_data[$item_index]['value'] = $custom_data_value['thumbnail_url'];
+        //     $counter++;
+        // }
         return $item_data;
     }
 }
@@ -221,43 +128,62 @@ add_filter('woocommerce_get_item_data', 'custom_modify_item_attributes', 10, 2);
 function add_custom_data_to_order_item($item, $cart_item_key, $values, $order)
 {
     // Retrieve custom data from the cart item
-    if (isset($values['custom_data'])) {
-        $custom_data = $values['custom_data'];
-        // Add the custom data as order item meta
-        foreach ($custom_data as $label => $data_item) {
-            $value = $data_item['options'] !== 'true' ? $data_item['options'] : '';
-            $item->add_meta_data($data_item['name'], $value, true);
-        }
+    if (isset($values['allergen_list'])) {
+        // $custom_data = $values['custom_data'];
+        // // Add the custom data as order item meta
+        // foreach ($custom_data as $label => $data_item) {
+        //     $value = $data_item['options'] !== 'true' ? $data_item['options'] : '';
+        //     $item->add_meta_data($data_item['name'], $value, true);
+        // }
 
-        $item->add_meta_data('<span class="allergens_list">אלרגיות</span>', $values['allergens_list'], true);
+        $item->add_meta_data('allergen_list', $values['allergen_list'], true);
     }
     return $item;
 }
 add_filter('woocommerce_checkout_create_order_line_item', 'add_custom_data_to_order_item', 10, 4);
 
 
-add_filter('woocommerce_cart_item_thumbnail', function ($thumbnail, $cart_item, $cart_item_key) {
-    if (!empty($cart_item['custom_data']['theme'])) {
-        // Replace this with your custom logic to determine the new image URL
-        $new_image_url = $cart_item['custom_data']['theme_image']['options'];
-        if (empty($new_image_url))
-            return;
-        // Create a new image HTML tag
-        $new_thumbnail = '<img src="' . $new_image_url . '" alt="' . esc_attr($cart_item['data']->get_name()) . '">';
-
-        return $new_thumbnail;
-    }
-}, 10, 3);
-
-add_action('woocommerce_init', 'shipping_instance_form_fields_filters');
-
-function shipping_instance_form_fields_filters()
+function set_custom_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
 {
-    $shipping_methods = WC()->shipping->get_shipping_methods();
-    foreach ($shipping_methods as $shipping_method) {
-        add_filter('woocommerce_shipping_instance_form_fields_' . $shipping_method->id, 'shipping_instance_form_add_extra_fields');
+    if (is_cart() || is_checkout()) {
+
+
+        $custom_attributes_terms = !empty($cart_item['custom_attributes']) ? flatten_array($cart_item['custom_attributes']) : [];
+        $images_src = [];
+        $thumbnail_html = '<div class="cart-item-thumbnail-gallery">';
+        if (!empty($custom_attributes_terms)) {
+            foreach ($custom_attributes_terms as $term_image) {
+                $images_src[] = ($term_image === 'custom_image')
+                    ? $cart_item['custom_image']
+                    : wp_get_attachment_image_src($term_image, 'thumbnail')[0];
+            }
+        }
+        foreach ($images_src as $idx => $image_src) {
+            $thumbnail_html .= "<img src=\"$image_src\" alt=\"product thumbnail\">";
+        }
+        $thumbnail_html .= '</div>';
+        return $thumbnail_html;
+    } else {
+        return '';
     }
 }
+add_filter('woocommerce_cart_item_thumbnail', 'set_custom_item_thumbnail', 10, 3);
+
+function set_item_custom_information($cart_item, $cart_item_key)
+{
+    $allergen_list = $cart_item['allergen_list'] ?? [];
+    $custom_attributes = $cart_item['custom_attributes'] ?? [];
+    if (empty($allergen_list) && empty($custom_attributes))
+        return;
+    $custom_item_information_template_path = HE_CHILD_THEME_DIR . '/templates/cart/custom-item-information.php';
+    if (file_exists($custom_item_information_template_path)) {
+        include $custom_item_information_template_path;
+    }
+}
+add_action('woocommerce_after_cart_item_name', 'set_item_custom_information', 10, 3);
+
+add_filter('woocommerce_cart_item_permalink', '__return_false');
+/****************************/
 
 function shipping_instance_form_add_extra_fields($settings)
 {
@@ -270,8 +196,14 @@ function shipping_instance_form_add_extra_fields($settings)
 
     return $settings;
 }
-
-add_action('woocommerce_after_checkout_billing_form', 'add_custom_checkout_fields');
+function shipping_instance_form_fields_filters()
+{
+    $shipping_methods = WC()->shipping->get_shipping_methods();
+    foreach ($shipping_methods as $shipping_method) {
+        add_filter('woocommerce_shipping_instance_form_fields_' . $shipping_method->id, 'shipping_instance_form_add_extra_fields');
+    }
+}
+add_action('woocommerce_init', 'shipping_instance_form_fields_filters');
 
 function add_custom_checkout_fields($checkout)
 {
@@ -280,9 +212,8 @@ function add_custom_checkout_fields($checkout)
         include $recipients_details_template_path;
     }
 }
+add_action('woocommerce_after_checkout_billing_form', 'add_custom_checkout_fields');
 
-
-add_filter('woocommerce_cart_shipping_method_full_label', 'change_cart_shipping_method_full_label', 10, 2);
 function change_cart_shipping_method_full_label($label, $method)
 {
     $method_id = $method->get_method_id();
@@ -295,6 +226,9 @@ function change_cart_shipping_method_full_label($label, $method)
     <?php } ?>
     <?php return $label;
 }
+
+add_filter('woocommerce_cart_shipping_method_full_label', 'change_cart_shipping_method_full_label', 10, 2);
+
 /*** ORDER ***/
 
 add_action('woocommerce_checkout_create_order', 'save_recipients_field_value', 10, 2);

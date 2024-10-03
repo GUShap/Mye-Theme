@@ -4,10 +4,11 @@
 /* options selection */
 
 .custom-data-container {
+    --container-width: 640px;
     position: fixed;
     top: 0;
     right: 0;
-    width: 640px;
+    width: var(--container-width);
     height: 100vh;
     background-color: #fff;
     z-index: 10;
@@ -19,6 +20,19 @@
 
 .custom-data-container:not(.active) {
     transform: translateX(100%);
+}
+
+.custom-data-container:after {
+    content: '';
+    position: fixed;
+    width: calc(100vw - var(--container-width));
+    inset: 0 0 0 auto;
+    background-color: #00000054;
+    transition: all 0.3s linear;
+    transform: translateX(calc(-1 * var(--container-width)));}
+
+.custom-data-container:not(.active):after {
+    right: calc(100% + 2 * var(--container-width));
 }
 
 html:has(.custom-data-container.active) {
@@ -35,7 +49,7 @@ html:has(.custom-data-container.active) {
     position: absolute;
     top: 30px;
     right: 10px;
-    padding: 0;
+    padding: 0 !important;
     height: 25px;
     width: 25px;
     border-radius: 50%;
@@ -548,4 +562,251 @@ html:has(.custom-data-container.active) {
             3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em,
             -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
     }
+}
+
+/* ***** */
+
+.pretty-product-gallery img {
+    width: 100%;
+    max-height: 650px;
+}
+
+.pretty-product-gallery .slick-track {
+    display: flex;
+    gap: 5px;
+}
+
+.pretty-product-gallery .slick-track>* {
+    cursor: pointer;
+    max-height: 650px;
+}
+
+.pretty-product-gallery .slider-for img {
+    object-fit: cover;
+}
+
+.pretty-product-gallery .slider-nav {
+    margin-top: 5px;
+}
+
+.pretty-product-gallery .thumbnail-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.pretty-product-gallery .thumbnail-arrow.thumbnail-prev-arrow {
+    right: calc(100% + 5px);
+}
+
+.pretty-product-gallery .thumbnail-arrow.thumbnail-next-arrow {
+    left: calc(100% + 5px);
+}
+
+.pretty-product-gallery .slider-nav .slick-slide:not(.slick-center) {
+    opacity: 0.3;
+}
+
+.pretty-product-gallery .slider-nav .slick-slide:not(.slick-center):hover {
+    opacity: 1;
+}
+
+.slick-lightbox {
+    direction: ltr;
+}
+
+.slick-lightbox .slick-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    outline: none !important;
+    color: transparent !important;
+    background-color: unset !important;
+    z-index: 1;
+}
+
+.slick-lightbox .slick-arrow:before {
+    font-family: 'dashicons';
+    font-size: 34px;
+    color: #fff;
+    background-color: #000;
+    border-radius: 50%;
+}
+
+.slick-lightbox .slick-prev:before {
+    content: '\f341';
+    padding: 2px 4px 2px 0;
+}
+
+.slick-lightbox .slick-next:before {
+    content: '\f345';
+    padding: 2px 0 2px 4px;
+}
+
+.slick-lightbox .slick-lightbox-close {
+    display: none;
+}
+
+@media(max-width: 768px) {
+    .slick-lightbox .slick-arrow {
+        display: none !important;
+    }
+}
+
+/* ****** */
+
+.woocommerce-variation-add-to-cart {
+    flex-wrap: wrap !important;
+}
+
+.woocommerce-variation-add-to-cart .allergens-container {
+    width: 100%;
+}
+
+.woocommerce-variation-add-to-cart .allergens-container:has(.ajaxerrors){
+    padding-top: 0;
+}
+
+.woocommerce-variation-add-to-cart .allergens-container .ajaxerrors p{
+    background-color: #ee6665;
+    width: fit-content;
+    padding: 4px 8px;
+    font-weight: 500;
+    text-decoration: underline;
+}
+/*********************/
+
+
+/* ALLERGENS */
+.allergens-container {
+    margin: 25px 0 10px;
+    position: relative;
+    background-color: #f0f0f0;
+    padding: 5px 0 0;
+    border: 1px solid #ee6565;
+    z-index: 8;
+}
+
+.allergens-container .allergens-title {
+    font-family: 'Tel Aviv';
+    text-align: center;
+    position: relative;
+}
+
+.allergens-container .allergens-title:before,
+.allergens-container .allergens-title:after {
+    content: '';
+    position: absolute;
+    height: 2px;
+    background-color: #ee6565;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.allergens-container .allergens-title:before {
+    width: 16%;
+    bottom: 0;
+}
+
+.allergens-container .allergens-title:after {
+    width: 15%;
+    bottom: -5px;
+}
+
+.allergens-disclaimer {
+    font-family: 'open sans';
+    font-weight: 500;
+    text-align: center;
+}
+
+body.single-product form details.allergies-container {
+    margin: 10px 0 0;
+    text-align: start;
+    border: 1px solid #ee6565;
+    background-color: #fff;
+}
+
+
+body.single-product form details.allergies-container[open] {
+    border: none !important;
+    border: 1px solid #000;
+}
+
+
+body.single-product form details.allergies-container[open] summary,
+body.single-product form details.allergies-container[open] .options-list-container {
+    border: 1px solid #ee6565;
+}
+
+body.single-product form details.allergies-container summary {
+    background-color: #ee6565;
+    color: #fff;
+    font-family: 'Tel Aviv';
+    font-weight: 600;
+    padding: 0 5px;
+    text-align: center;
+}
+
+body.single-product form details.allergies-container[open] summary {
+    border-bottom: none;
+}
+
+body.single-product form details.allergies-container[open] .options-list-container {
+    border-top: none;
+    padding-top: 5px;
+}
+
+body.single-product form details.allergies-container input#allergen-search {
+    padding: 3px 15px 3px 0;
+    width: 60%;
+    margin: 5px 0 10px;
+    border: 1px solid;
+}
+
+body.single-product form details.allergies-container .options-list-container {
+    padding: 0 10px 20px;
+    background-color: #fff;
+
+}
+
+body.single-product form details.allergies-container .options-list-wrapper {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: 1fr 1fr;
+    max-height: 130px;
+    overflow-y: auto;
+}
+
+body.single-product form details.allergies-container .option-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+body.single-product form details.allergies-container label {
+    font-weight: 600;
+}
+
+body.single-product form details.allergies-container .option-wrapper:has(input:disabled) label {
+    color: #cfcfcf;
+}
+
+body.single-product form details.allergies-container .allergies-disclamier {
+    grid-column: 1/-1;
+    margin: 20px 10px;
+    position: relative;
+}
+
+body.single-product form details.allergies-container .allergies-disclamier:before {
+    content: '*';
+    position: absolute;
+    top: 0;
+    right: -10px;
+}
+
+body.single-product form details.allergies-container .button-wrapper {
+    text-align: center;
 }

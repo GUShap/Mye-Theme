@@ -5,6 +5,9 @@ if(typeof $ == 'undefined') {
 $(window).on('load', () => {
     setHeaderOnScroll();
     toggleCartItemData();
+    $('body').on('updated_checkout updated_cart_totals', ()=>{
+        toggleCartItemData();
+    });
 });
 
 function setHeaderOnScroll() {

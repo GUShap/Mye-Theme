@@ -4,7 +4,6 @@ if (!defined('ABSPATH')) {
   exit;
 }
 
-// Callback function for the AJAX action
 function get_cake_themes_callback()
 {
   $taxonomy = 'pa_' . sanitize_title('cake_theme');
@@ -39,12 +38,9 @@ function get_cake_themes_callback()
   // Return the data as JSON
   wp_send_json($data);
 }
-
 // Hook for the AJAX action in WordPress
 add_action('wp_ajax_get_cake_themes', 'get_cake_themes_callback');
 add_action('wp_ajax_nopriv_get_cake_themes', 'get_cake_themes_callback');
-
-
 function add_attributes_to_item()
 {
   $response = [];
@@ -106,10 +102,8 @@ function add_attributes_to_item()
 
   wp_send_json_success($response);
 }
-
 add_action('wp_ajax_add_attributes_to_item', 'add_attributes_to_item');
 add_action('wp_ajax_nopriv_add_attributes_to_item', 'add_attributes_to_item');
-
 
 function woocommerce_add_to_cart_variable_rc_callback()
 {
@@ -125,11 +119,25 @@ function woocommerce_add_to_cart_variable_rc_callback()
   $custom_attributes_raw = !empty($_POST['custom_attributes']) ? json_decode(stripslashes($_POST['custom_attributes']), true) : [];
   $added_price = $_POST['added_price'] ?? 0;
   $custom_attributes = [];
-
   if (!empty($custom_attributes_raw)) {
     foreach ($custom_attributes_raw as $inner_array) {
-      foreach ($inner_array as $key => $value) {
-        $custom_attributes[$key] = $value;
+      foreach ($inner_array as $key => $values) {
+        foreach ($values as $idx => $value) {
+          switch ($value) {
+            case 'custom_image':
+              $base_64_file = WC()->session->get('custom_image');
+              $custom_image_id = save_user_image_as_file($base_64_file);
+              if ($custom_image_id) {
+                wp_schedule_single_event(time() + 3 * WEEK_IN_SECONDS, 'delete_user_custom_image', array($custom_image_id));
+              }
+              WC()->session->set('custom_image', '');
+              $custom_attributes[$key][$idx] = $custom_image_id;
+              break;
+            default:
+              $custom_attributes[$key][$idx] = str_replace("{$key}_", '', $value);
+              break;
+          }
+        }
       }
     }
   }
@@ -137,28 +145,17 @@ function woocommerce_add_to_cart_variable_rc_callback()
   if (!empty($allergen_list))
     $cart_item_data['allergen_list'] = $allergen_list;
 
-  if (!empty($custom_attributes))
+  if (!empty($custom_attributes)) {
     $cart_item_data['custom_attributes'] = $custom_attributes;
-
+  }
   if (!empty($added_price))
     $cart_item_data['added_price'] = $added_price;
 
-  if (in_array('custom_image', flatten_array($custom_attributes))) {
-    $base_64_file = WC()->session->get('custom_image');
-    $custom_image_url = save_user_image_as_file($base_64_file);
-    if ($custom_image_url) {
-      $cart_item_data['custom_image'] = $custom_image_url;
-      $cart_item_data['custom_image_id'] = basename($custom_image_url);
-      wp_schedule_single_event(time() + (3 * 7 * 24 * 60 * 60), 'delete_user_custom_image', array($cart_item_data['custom_image_id']));
-    }
-    WC()->session->set('custom_image', '');
-  }
-
   $variation = [];
 
-  foreach ($cart_item_data as $key => $value) {
+  foreach ($cart_item_data as $key => $values) {
     if (preg_match("/^attribute*/", $key)) {
-      $variation[$key] = $value;
+      $variation[$key] = $values;
     }
   }
 
@@ -187,6 +184,5 @@ function woocommerce_add_to_cart_variable_rc_callback()
     wp_send_json_error($data);
   }
 }
-
 add_action('wp_ajax_woocommerce_add_to_cart_variable_rc', 'woocommerce_add_to_cart_variable_rc_callback');
 add_action('wp_ajax_nopriv_woocommerce_add_to_cart_variable_rc', 'woocommerce_add_to_cart_variable_rc_callback');

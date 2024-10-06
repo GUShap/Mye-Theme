@@ -68,9 +68,15 @@ if (!defined('ABSPATH'))
 
                         $input_type = $multiple_selection ? 'checkbox' : 'radio';
                         $terms_str = "$label, $search_terms";
-
-                        foreach ($gallery as $image_idx => $image_id) {
-                            $single_option_template_path = HE_CHILD_THEME_DIR . '/templates/product/single-option.php';
+                        $single_option_template_path = HE_CHILD_THEME_DIR . '/templates/product/single-option.php';
+                        if (!empty($gallery)) {
+                            foreach ($gallery as $image_idx => $image_id) {
+                                if (file_exists($single_option_template_path)) {
+                                    include $single_option_template_path;
+                                }
+                            }
+                        } else {
+                            $image_id = create_image_from_text($label, $value);
                             if (file_exists($single_option_template_path)) {
                                 include $single_option_template_path;
                             }

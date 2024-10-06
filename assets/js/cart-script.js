@@ -2,6 +2,10 @@
     $(window).on('load', () => {
         setTableKeys();
         setItemGallery();
+        $('body').on('updated_checkout updated_cart_totals', () => {
+            setTableKeys();
+            setItemGallery();
+        });
     });
 
     function setTableKeys() {
@@ -30,7 +34,7 @@
             variableWidth: false,
             arrows: false,
             dots: true,
-            adaptiveHeight: true,            
+            adaptiveHeight: true,
 
         });
     }

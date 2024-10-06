@@ -152,3 +152,16 @@ function set_options_filter()
       <input type="text" name="" id="option-search-input" placeholder="&#128269; חיפוש נושא לעוגה...">
     </div>
   <?php }
+/*******************************/
+
+function set_item_custom_information($cart_item)
+{
+    $allergen_list = $cart_item['allergen_list'] ?? [];
+    $custom_attributes = $cart_item['custom_attributes'] ?? [];
+    if (empty($allergen_list) && empty($custom_attributes))
+        return;
+    $custom_item_information_template_path = HE_CHILD_THEME_DIR . '/templates/cart/custom-item-information.php';
+    if (file_exists($custom_item_information_template_path)) {
+        include $custom_item_information_template_path;
+    }
+}

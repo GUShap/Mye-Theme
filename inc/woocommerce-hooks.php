@@ -41,7 +41,7 @@ function add_allergens_to_product()
         include $product_allergens_list_template_path;
     }
 }
-add_action('woocommerce_before_add_to_cart_quantity', 'add_allergens_to_product', 0, 20);
+add_action('woocommerce_after_variations_table', 'add_allergens_to_product', 10, 20);
 
 function add_price_addition_input()
 {
@@ -112,14 +112,6 @@ function custom_modify_item_attributes($item_data, $cart_item)
                 }
             }
         }
-
-        // foreach ($cart_item['custom_data'] as $custom_data_label => $custom_data_value) {
-        //     $item_index = count($item_data) + $counter;
-        //     $item_data[$item_index]['key'] = $custom_data_value['name'];
-        //     $item_data[$item_index]['value'] = $custom_data_value['options'] !== 'true' ? $custom_data_value['options'] : 'כן';
-        //     // if($custom_data_label === 'theme') $item_data[$item_index]['value'] = $custom_data_value['thumbnail_url'];
-        //     $counter++;
-        // }
         return $item_data;
     }
 }
@@ -129,58 +121,47 @@ function add_custom_data_to_order_item($item, $cart_item_key, $values, $order)
 {
     // Retrieve custom data from the cart item
     if (isset($values['allergen_list'])) {
-        // $custom_data = $values['custom_data'];
-        // // Add the custom data as order item meta
-        // foreach ($custom_data as $label => $data_item) {
-        //     $value = $data_item['options'] !== 'true' ? $data_item['options'] : '';
-        //     $item->add_meta_data($data_item['name'], $value, true);
-        // }
-
         $item->add_meta_data('allergen_list', $values['allergen_list'], true);
+    }
+
+    if (isset($values['custom_attributes'])) {
+        $item->add_meta_data('custom_attributes', $values['custom_attributes'], true);
     }
     return $item;
 }
 add_filter('woocommerce_checkout_create_order_line_item', 'add_custom_data_to_order_item', 10, 4);
 
-
 function set_custom_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
 {
-    if (is_cart() || is_checkout()) {
-
-
-        $custom_attributes_terms = !empty($cart_item['custom_attributes']) ? flatten_array($cart_item['custom_attributes']) : [];
-        $images_src = [];
+    $custom_attributes_terms = !empty($cart_item['custom_attributes']) ? flatten_array($cart_item['custom_attributes']) : [];
+    if (!empty($custom_attributes_terms)) {
         $thumbnail_html = '<div class="cart-item-thumbnail-gallery">';
-        if (!empty($custom_attributes_terms)) {
-            foreach ($custom_attributes_terms as $term_image) {
-                $images_src[] = ($term_image === 'custom_image')
-                    ? $cart_item['custom_image']
-                    : wp_get_attachment_image_src($term_image, 'thumbnail')[0];
-            }
-        }
-        foreach ($images_src as $idx => $image_src) {
-            $thumbnail_html .= "<img src=\"$image_src\" alt=\"product thumbnail\">";
+        foreach ($custom_attributes_terms as $image_id) {
+            $thumbnail_html .= wp_get_attachment_image($image_id, 'thumbnail');
         }
         $thumbnail_html .= '</div>';
         return $thumbnail_html;
     } else {
-        return '';
+        return $thumbnail;
     }
 }
 add_filter('woocommerce_cart_item_thumbnail', 'set_custom_item_thumbnail', 10, 3);
 
-function set_item_custom_information($cart_item, $cart_item_key)
+function add_custom_data_info($cart_item, $cart_item_key)
 {
-    $allergen_list = $cart_item['allergen_list'] ?? [];
-    $custom_attributes = $cart_item['custom_attributes'] ?? [];
-    if (empty($allergen_list) && empty($custom_attributes))
-        return;
-    $custom_item_information_template_path = HE_CHILD_THEME_DIR . '/templates/cart/custom-item-information.php';
-    if (file_exists($custom_item_information_template_path)) {
-        include $custom_item_information_template_path;
-    }
+    set_item_custom_information($cart_item);
 }
-add_action('woocommerce_after_cart_item_name', 'set_item_custom_information', 10, 3);
+add_action('woocommerce_after_cart_item_name', 'add_custom_data_info', 10, 2);
+
+
+function add_custom_data_info_checkout($quantity, $cart_item, $cart_item_key)
+{
+    ob_start();
+    set_item_custom_information($cart_item);
+    $custom_data_info = ob_get_clean();
+    return $quantity . $custom_data_info;
+}
+add_filter('woocommerce_checkout_cart_item_quantity', 'add_custom_data_info_checkout', 10, 3);
 
 add_filter('woocommerce_cart_item_permalink', '__return_false');
 /****************************/
@@ -270,8 +251,6 @@ function save_recipients_field_value($order, $data)
 /***** ORDER ADMIN ******/
 
 // Add custom data to the .order_data_column section in the order details table.
-add_action('woocommerce_admin_order_data_after_shipping_address', 'add_custom_order_data_as_column');
-
 function add_custom_order_data_as_column($order)
 {
     // Get the custom data you want to display.
@@ -285,21 +264,71 @@ function add_custom_order_data_as_column($order)
         }
     }
 }
+add_action('woocommerce_admin_order_data_after_shipping_address', 'add_custom_order_data_as_column');
 
-
-add_action('woocommerce_admin_order_item_headers', 'admin_order_item_headers');
 function admin_order_item_headers()
 {
-    $column_name = 'אלרגיות';
-    echo '<th><span style="color:red;font-weight:600;">' . $column_name . '</span></th>';
+    $column_1_name = 'תוספות';
+    $column_2_name = 'אלרגיות';
+    echo "<th><span style=\"color:green;font-weight:600;\">$column_1_name</span></th>";
+    echo "<th><span style=\"color:red;font-weight:600;\">$column_2_name</span></th>";
 }
+add_action('woocommerce_admin_order_item_headers', 'admin_order_item_headers', 10);
 
-add_action('woocommerce_admin_order_item_values', 'admin_order_item_values', 10, 3);
 function admin_order_item_values($_product, $item, $item_id = null)
 {
-    $allergens_list = explode(',', $item['<span class="allergens_list">אלרגיות</span>']);
+    $custom_attributes = $item['custom_attributes'] ?? [];
+    $allergens_list = $item['allergen_list'] ?? [];
+
+    $custom_attributes_column_template_path = HE_CHILD_THEME_DIR . '/templates/admin/order/item-custom-attributes-column.php';
     $allergens_column_template_path = HE_CHILD_THEME_DIR . '/templates/admin/order/item-allergens-column.php';
+
+    if (file_exists($custom_attributes_column_template_path)) {
+        include $custom_attributes_column_template_path;
+    }
+
     if (file_exists($allergens_column_template_path)) {
         include $allergens_column_template_path;
     }
 }
+add_action('woocommerce_admin_order_item_values', 'admin_order_item_values', 10, 3);
+
+// Modify the product thumbnail in WooCommerce admin order details
+function set_admin_order_item_thumbnail($thumbnail, $item_id, $item)
+{
+    return '';
+}
+add_filter('woocommerce_admin_order_item_thumbnail', 'set_admin_order_item_thumbnail', 10, 3);
+
+// changing the column count in the WooCommerce admin order details table
+function modify_admin_html_output($buffer)
+{
+    // Search for specific HTML and replace it
+    $search_replace = [
+        '<th class="item sortable" colspan="2" data-sort="string-ins">Item</th>' => '<th class="item sortable" colspan="1" data-sort="string-ins">Item</th>',
+    ];
+
+    foreach($search_replace as $search => $replace) {
+        $buffer = str_replace($search, $replace, $buffer);
+    }
+    $buffer = preg_replace('/<td class="thumb">.*?<\/td>/s', '', $buffer);
+
+    return $buffer;
+}
+function start_admin_html_buffer()
+{
+    ob_start('modify_admin_html_output');
+}
+function end_admin_html_buffer()
+{
+    ob_end_flush();
+}
+// Hook into the admin pages
+add_action('admin_head', 'start_admin_html_buffer',999);
+add_action('admin_footer', 'end_admin_html_buffer',999);
+
+// 
+function set_order_item_email_images($image, $item)
+{
+}
+add_filter('woocommerce_order_item_thumbnail', 'set_order_item_email_images', 10, 2);

@@ -11,15 +11,8 @@ add_action('elementor/widgets/register', 'register_custom_widgets', 10, 1);
 
 function delete_image_by_id($image_id)
 {
-    $upload_dir = wp_upload_dir();
-    $upload_path = $upload_dir['basedir'] . '/custom_clients_images/';
-
-    // Construct the full path of the image
-    $file_path = "$upload_path$image_id";
-
-    // Check if the file exists and delete it
-    if (file_exists($file_path)) {
-        unlink($file_path);
+    if (!empty($image_id)) {
+        wp_delete_attachment($image_id, true);
     }
 }
 add_action('delete_user_custom_image', 'delete_image_by_id', 10, 1);
@@ -82,3 +75,13 @@ function load_slick_slider()
     wp_enqueue_style('slick-lightbox-style', 'https://cdnjs.cloudflare.com/ajax/libs/slick-lightbox/0.2.12/slick-lightbox.css', [], time());
 }
 add_action('wp_enqueue_scripts', 'load_slick_slider');
+
+function enqueue_google_fonts() {
+    wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Rubik+Dirt&display=swap');
+}
+add_action('wp_enqueue_scripts', 'enqueue_google_fonts');
+
+
+add_action('template_redirect', function(){
+    send_whatsapp_message('972526033388', 'Hello from Mye Sweet 256256!');
+});

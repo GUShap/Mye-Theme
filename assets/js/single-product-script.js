@@ -1,7 +1,6 @@
 ($ => {
     // Globals
-    // const ajaxUrl = siteConfig.ajaxUrl;
-    // const productId = +siteConfig.productId
+    let selectedVariation = null;
     // // 
     $(window).on('load', function () {
         setCustomDataToggle();
@@ -12,6 +11,7 @@
         setStepsButtons();
         setPrettyProductGallery();
         setCustomAddToCart();
+        setPriceUpdate();
     });
 
     function setCustomDataToggle() {
@@ -110,7 +110,7 @@
         });
     }
     function setAttributeOptionSelect($attribute) {
-        const $options = $attribute.find('.gallery-content .gallery-item');
+        const $options = $attribute.find('.gallery-content .gallery-item, .gallery-content .text-item');
         const $optionsRadioInput = $options.find('input[type="radio"]');
         const $optionsCheckboxInput = $options.find('input[type="checkbox"]');
         const $imageSelectionWrapper = $attribute.find('.image-selection-wrapper');
@@ -709,6 +709,7 @@
         $customAttributesInput.val(JSON.stringify(formatteditemsData));
         $(gallerySelector).html(resGalleryHTML);
 
+        updateProductPrice(selectedVariation)
         setPrettyProductGallery();
     }
 
@@ -760,6 +761,30 @@
             }
         }, 10);
     }
+    /********************/
+
+    function setPriceUpdate() {
+        $('body').on('found_variation', function (e, variation) {
+            selectedVariation = variation;
+            updateProductPrice(variation);
+        });
+    }
+
+    function updateProductPrice(variation) {
+        if (!variation) return;
+        const currentPrice = +variation.display_price;
+        const addedPrice = +$('input#added-price').val();
+        let priceHTML = variation.price_html;
+        const $variationPriceWrapper = $('.woocommerce-variation-price');
+
+        if (addedPrice) {
+            const newPrice = currentPrice + addedPrice;
+            priceHTML = priceHTML.replace(currentPrice, newPrice);
+        }
+
+        $variationPriceWrapper.html(priceHTML);
+    }
+
     /********************/
 
     function setCustomAddToCart() {
@@ -817,11 +842,11 @@
 
             });
 
-            if(!isAllergensChecked) {
+            if (!isAllergensChecked) {
                 check = false;
                 $('.allergens-container')
-                .addClass('required error')
-                .prepend(`<div class="ajaxerrors"><p>יש לבחור אלרגנים בכדי להוסיף לסל</p></div>`);
+                    .addClass('required error')
+                    .prepend(`<div class="ajaxerrors"><p>יש לבחור אלרגנים בכדי להוסיף לסל</p></div>`);
 
             }
             if (!check) {

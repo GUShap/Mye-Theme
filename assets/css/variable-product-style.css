@@ -657,25 +657,41 @@ html:has(.custom-data-container.active) {
 }
 
 /* ****** */
-
-.woocommerce-variation-add-to-cart {
-    flex-wrap: wrap !important;
-}
-
-.woocommerce-variation-add-to-cart .allergens-container {
+.allergens-container {
     width: 100%;
 }
 
-.woocommerce-variation-add-to-cart .allergens-container:has(.ajaxerrors){
+.allergens-container summary{
+    cursor: pointer;
+    user-select: none;
+}
+
+.allergens-container:has(.ajaxerrors){
     padding-top: 0;
 }
 
-.woocommerce-variation-add-to-cart .allergens-container .ajaxerrors p{
+.allergens-container .ajaxerrors p{
     background-color: #ee6665;
     width: fit-content;
     padding: 4px 8px;
     font-weight: 500;
     text-decoration: underline;
+}
+/*********************/
+
+.single_variation_wrap{
+    display: flex;
+    align-items: flex-end;
+    gap: 50px;
+}
+
+.single_variation_wrap .woocommerce-variation-price{
+    line-height: 1;
+}
+
+.single_variation_wrap .woocommerce-variation-price .price{
+    color: #000 !important;
+    font-family: 'Rubik', sans-serif;
 }
 /*********************/
 

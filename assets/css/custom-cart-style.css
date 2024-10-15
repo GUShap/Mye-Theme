@@ -24,3 +24,12 @@
 .shop_table .cart_item .custom-item-list{
     padding: 0 5px 0 0 !important;
 }
+
+/*******************************/
+.pickup-information .description{
+    margin: 8px 0;
+}
+
+.pickup-information .description p{
+    margin: 0;
+}

@@ -2,9 +2,15 @@
     $(window).on('load', () => {
         setTableKeys();
         setItemGallery();
-        $('body').on('updated_checkout updated_cart_totals', () => {
-            setTableKeys();
-            setItemGallery();
+        $('body').on('updated_checkout updated_cart_totals updated_wc_div', () => {
+            const interval = setInterval(() => {
+                console.log('checking');
+                if (!$.active) {
+                    clearInterval(interval);
+                    setTableKeys();
+                    setItemGallery();
+                }
+            }, 100);
         });
     });
 

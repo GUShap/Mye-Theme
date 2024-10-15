@@ -252,9 +252,8 @@
         });
     }
     function setCanvasDisplay(fileOrUrl, $canvas) {
-        const ctx = $canvas[0].getContext('2d', { willReadFrequently: true });
+//         const ctx = $canvas[0].getContext('2d', { willReadFrequently: true });
         let canvasRotation = 0;
-        let textBoxes = [];
 
         const img = new Image();
         if (fileOrUrl instanceof File) {
@@ -293,7 +292,7 @@
             $canvas.css({
                 transform: `rotate(${canvasRotation}deg)`,
             });
-            $canvas.offset({ top: currentCanvasOffsetTop });
+            // $canvas.offset({ top: currentCanvasOffsetTop });
             if ($canvas.hasClass('landscape')) {
                 $canvas.removeClass('landscape')
                 $canvas.addClass('portrait')
@@ -468,7 +467,7 @@
             const isCanvasStep = $canvasWrapper.hasClass('active');
             // const optionID = $attribute.find('.image-preview img').data('option');
             if (!isCanvasStep) return;
-            if (!$canvasWrapper.find('.text-box').length) return;
+            // if (!$canvasWrapper.find('.text-box').length) return;
             const canvasRect = $canvasElement[0].getBoundingClientRect();
             const dimensions = {
                 x: $canvasElement.offset().left - $canvasWrapper.offset().left, // Capture only within canvas borders
@@ -484,7 +483,7 @@
                 'option_id': 'custom_image',
                 'url': imageDataURL
             };
-            localStorage.setItem('imageDataURL', imageDataURL);
+            // localStorage.setItem('imageDataURL', imageDataURL);
             setSingleImagePreview($attribute, imageData);
         });
     }
@@ -705,6 +704,7 @@
         const $customAttributesInput = $('input#custom-attributes');
 
         $container.closest('.custom-data-container').removeClass('active');
+        if(!formatteditemsData.length) return;
         $addedPriceInput.val(addedPrice);
         $customAttributesInput.val(JSON.stringify(formatteditemsData));
         $(gallerySelector).html(resGalleryHTML);

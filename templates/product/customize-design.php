@@ -12,7 +12,13 @@ if (!defined('ABSPATH')) {
 ?>
 <div class="customize-design-container">
     <button type="button" class="custom-data-toggle-button">&#10005;</button>
-    <div class="heading-wrapper"></div>
+    <div class="heading-wrapper">
+        <h2>התאמת תוספות</h2>
+        <div class="description">
+            <p>כאן תוכלו לעצב את הקינוח</p>
+            <p>בסיום התהליך יש ללחוץ על ״סיכום תוספות״</p>
+        </div>
+    </div>
     <div class="content-wrapper">
         <div class="attributes-wrapper active">
             <?php foreach ($attributes as $attr_idx => $attr_id) {

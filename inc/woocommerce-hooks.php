@@ -1,5 +1,8 @@
 <?php
 
+if (!defined('ABSPATH')) {
+    exit;
+}
 /***PRODUCT***/
 function add_custom_data_button()
 {
@@ -164,6 +167,33 @@ function add_custom_data_info_checkout($quantity, $cart_item, $cart_item_key)
 add_filter('woocommerce_checkout_cart_item_quantity', 'add_custom_data_info_checkout', 10, 3);
 
 add_filter('woocommerce_cart_item_permalink', '__return_false');
+
+function hide_shipping_when_free_shipping_is_available($show_shipping)
+{
+    // Hide shipping by returning false (prevents shipping from being shown)
+    return false;
+}
+
+add_filter('woocommerce_cart_ready_to_calc_shipping', 'hide_shipping_when_free_shipping_is_available', 99);
+
+function custom_pickup_information()
+{
+    $totals_pickup_information_template_path = HE_CHILD_THEME_DIR . '/templates/cart/totals-pickup-information.php';
+
+    if (file_exists($totals_pickup_information_template_path)) {
+        include $totals_pickup_information_template_path;
+    }
+}
+add_action('woocommerce_proceed_to_checkout', 'custom_pickup_information', 10);
+
+// Remove shipping methods and shipping address form from the checkout page
+function remove_shipping_details_on_checkout( $checkout ) {
+    if ( is_checkout() ) {
+        remove_action( 'woocommerce_checkout_shipping', 'woocommerce_checkout_shipping', 10 );
+    }
+}
+add_action( 'woocommerce_before_checkout_form', 'remove_shipping_details_on_checkout' );
+
 /****************************/
 
 function shipping_instance_form_add_extra_fields($settings)
@@ -308,7 +338,7 @@ function modify_admin_html_output($buffer)
         '<th class="item sortable" colspan="2" data-sort="string-ins">Item</th>' => '<th class="item sortable" colspan="1" data-sort="string-ins">Item</th>',
     ];
 
-    foreach($search_replace as $search => $replace) {
+    foreach ($search_replace as $search => $replace) {
         $buffer = str_replace($search, $replace, $buffer);
     }
     $buffer = preg_replace('/<td class="thumb">.*?<\/td>/s', '', $buffer);
@@ -324,8 +354,8 @@ function end_admin_html_buffer()
     ob_end_flush();
 }
 // Hook into the admin pages
-add_action('admin_head', 'start_admin_html_buffer',999);
-add_action('admin_footer', 'end_admin_html_buffer',999);
+add_action('admin_head', 'start_admin_html_buffer', 999);
+add_action('admin_footer', 'end_admin_html_buffer', 999);
 
 // 
 function set_order_item_email_images($image, $item)

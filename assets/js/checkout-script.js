@@ -1,8 +1,13 @@
 ($ => {
+    const pickupDatesData = checkout_vars.pickup_dates;
+    const pickupDateLimit = +checkout_vars.pickup_dates_limit;
+    const pickupItemsCount = +checkout_vars.pickup_items_count;
+
     $(window).on('load', () => {
         setOrderRecipientsForm();
-        setDeliveryForm();
+        // setDeliveryForm();
         setTableKeys();
+        setDatepicker();
     })
     /* RECIPIENTS */
     function setOrderRecipientsForm() {
@@ -49,145 +54,189 @@
     }
 
     /* DELIVERY */
-    function setDeliveryForm() {
-        const $form = $('form[name="checkout"]'),
-            $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
-        $deliveryMethodSelect.find('option:first-child').prop('disabled', true).text('יש לבחור מהרשימה'),
-            setAvailableDeliveryMethods($form);
-        setFormEvents($form);
-    }
-    function getCityInput($form) {
-        const $userBillingCityInput = $form.find('input#billing_city'),
-            $userShippingCityInput = $form.find('input#shipping_city'),
-            $differentAddresInput = $form.find('input#ship-to-different-address-checkbox');
+    // function setDeliveryForm() {
+    //     const $form = $('form[name="checkout"]'),
+    //         $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
+    //     $deliveryMethodSelect.find('option:first-child').prop('disabled', true).text('יש לבחור מהרשימה');
+    // setAvailableDeliveryMethods($form);
+    // setFormEvents($form);
+    // }
+    // function getCityInput($form) {
+    //     const $userBillingCityInput = $form.find('input#billing_city'),
+    //         $userShippingCityInput = $form.find('input#shipping_city'),
+    //         $differentAddresInput = $form.find('input#ship-to-different-address-checkbox');
 
-        return $differentAddresInput.is(':checked')
-            ? $userShippingCityInput
-            : $userBillingCityInput;
-    }
-    function getUserShippingCity($form) {
-        const cityInput = getCityInput($form);
-        return cityInput.val();
-    }
-    function getShippingData($form) {
-        const $citiesInputs = $form.find('#order_review input[name="zone-cities-list"]');
-        const city = getUserShippingCity($form);
-        let isShippingAvailable = false;
-        let zoneId = '';
-        $citiesInputs.each(function () {
-            if ($(this).val().split(', ').includes(city)) {
-                isShippingAvailable = true;
-                zoneId = $(this).siblings('input.shipping_method').attr('id')
-            }
-        });
-        return { isShippingAvailable, zoneId };
-    }
-    function setAvailableDeliveryMethods($form) {
-        const $pickupRadioInput = $form.find('input#shipping_method_0_local_pickup1'),
-            $methodSelect = $form.find('#coderockz_woo_delivery_setting_wrapper select'),
-            $deliverySelectOption = $methodSelect.find('option[value="delivery"]'),
-            $pickupSelectOption = $methodSelect.find('option[value="pickup"]');
+    //     return $differentAddresInput.is(':checked')
+    //         ? $userShippingCityInput
+    //         : $userBillingCityInput;
+    // }
+    // function getUserShippingCity($form) {
+    //     const cityInput = getCityInput($form);
+    //     return cityInput.val();
+    // }
+    // function getShippingData($form) {
+    //     const $citiesInputs = $form.find('#order_review input[name="zone-cities-list"]');
+    //     const city = getUserShippingCity($form);
+    //     let isShippingAvailable = false;
+    //     let zoneId = '';
+    //     $citiesInputs.each(function () {
+    //         if ($(this).val().split(', ').includes(city)) {
+    //             isShippingAvailable = true;
+    //             zoneId = $(this).siblings('input.shipping_method').attr('id')
+    //         }
+    //     });
+    //     return { isShippingAvailable, zoneId };
+    // }
+    // function setAvailableDeliveryMethods($form) {
+    //     const $pickupRadioInput = $form.find('input#shipping_method_0_local_pickup1'),
+    //         $methodSelect = $form.find('#coderockz_woo_delivery_setting_wrapper select'),
+    //         $deliverySelectOption = $methodSelect.find('option[value="delivery"]'),
+    //         $pickupSelectOption = $methodSelect.find('option[value="pickup"]');
 
-        const shippingData = getShippingData($form);
-        const isShippingAvailable = shippingData.isShippingAvailable;
-        const isDeliveryOptionDisabled = $deliverySelectOption.prop('disabled');
-        const disabledDeliveryHtml = '<span class="shipping-alert"> לא ניתן עבור ישוב מגוריך</span>';
-        if (!isShippingAvailable) {
-            if (!isDeliveryOptionDisabled) {
-                $pickupSelectOption.prop('selected', true);
-                $deliverySelectOption.prop('disabled', true).append(disabledDeliveryHtml);
-                $pickupRadioInput.prop('checked', true).trigger('change');
-                $methodSelect.val($pickupSelectOption.val()).trigger('change');
-            }
-        } else {
-            if (isDeliveryOptionDisabled) {
-                $deliverySelectOption.prop('disabled', false).find('.shipping-alert').remove();
-            }
-        }
-    }
-    function setDeliveryZone($form) {
-        const shippingData = getShippingData($form);
-        $(`input#${shippingData.zoneId}`).prop('checked', true).change();
-    }
-    function setFormEvents($form) {
-        const $differentAddresInput = $form.find('input#ship-to-different-address-checkbox'),
-            $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
+    //     const shippingData = getShippingData($form);
+    //     const isShippingAvailable = shippingData.isShippingAvailable;
+    //     const isDeliveryOptionDisabled = $deliverySelectOption.prop('disabled');
+    //     const disabledDeliveryHtml = '<span class="shipping-alert"> לא ניתן עבור ישוב מגוריך</span>';
+    //     if (!isShippingAvailable) {
+    //         if (!isDeliveryOptionDisabled) {
+    //             $pickupSelectOption.prop('selected', true);
+    //             $deliverySelectOption.prop('disabled', true).append(disabledDeliveryHtml);
+    //             $pickupRadioInput.prop('checked', true).trigger('change');
+    //             $methodSelect.val($pickupSelectOption.val()).trigger('change');
+    //         }
+    //     } else {
+    //         if (isDeliveryOptionDisabled) {
+    //             $deliverySelectOption.prop('disabled', false).find('.shipping-alert').remove();
+    //         }
+    //     }
+    // }
+    // function setDeliveryZone($form) {
+    //     const shippingData = getShippingData($form);
+    //     $(`input#${shippingData.zoneId}`).prop('checked', true).change();
+    // }
+    // function setFormEvents($form) {
+    //     const $differentAddresInput = $form.find('input#ship-to-different-address-checkbox'),
+    //         $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
 
-        const cityInput = getCityInput($form);
-        const $pickupRadioInput = $('input#shipping_method_0_local_pickup1');
-        $pickupRadioInput.prop('checked', true).change();
+    //     const cityInput = getCityInput($form);
+    //     const $pickupRadioInput = $('input#shipping_method_0_local_pickup1');
+    //     $pickupRadioInput.prop('checked', true).change();
 
-        $deliveryMethodSelect.on('change', function () {
-            if ($(this).val() == 'delivery') setDeliveryZone($form);
-            else {
-                let $pickupRadioInput = $('input#shipping_method_0_local_pickup1');
-                $pickupRadioInput.prop('checked', true).change();
-            }
-        });
-        cityInput.on('change', () => {
-            const $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
-            setAvailableDeliveryMethods($form);
-            if ($deliveryMethodSelect.val() == 'delivery') setDeliveryZone($form);
-        });
-        $differentAddresInput.on('change', () => {
-            const newCityInput = getCityInput($form);
-            cityInput.off('change');
-            setAvailableDeliveryMethods($form);
-            if ($deliveryMethodSelect.val() == 'delivery') setDeliveryZone($form);
-            newCityInput.on('change', () => {
-                // const $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
-                setAvailableDeliveryMethods($form);
-                if ($deliveryMethodSelect.val() == 'delivery') setDeliveryZone($form);
-            });
-        });
+    //     $deliveryMethodSelect.on('change', function () {
+    //         if ($(this).val() == 'delivery') setDeliveryZone($form);
+    //         else {
+    //             let $pickupRadioInput = $('input#shipping_method_0_local_pickup1');
+    //             $pickupRadioInput.prop('checked', true).change();
+    //         }
+    //     });
+    //     cityInput.on('change', () => {
+    //         const $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
+    //         setAvailableDeliveryMethods($form);
+    //         if ($deliveryMethodSelect.val() == 'delivery') setDeliveryZone($form);
+    //     });
+    //     $differentAddresInput.on('change', () => {
+    //         const newCityInput = getCityInput($form);
+    //         cityInput.off('change');
+    //         setAvailableDeliveryMethods($form);
+    //         if ($deliveryMethodSelect.val() == 'delivery') setDeliveryZone($form);
+    //         newCityInput.on('change', () => {
+    //             // const $deliveryMethodSelect = $form.find('select#coderockz_woo_delivery_delivery_selection_box');
+    //             setAvailableDeliveryMethods($form);
+    //             if ($deliveryMethodSelect.val() == 'delivery') setDeliveryZone($form);
+    //         });
+    //     });
 
-    }
+    // }
 
     /* ORDER TABLE */// Function to perform the desired actions
-// Function to perform the desired actions
-function performActionsOnTable() {
-    // Check if there are already '.row-wrapper' elements
-    if ($('table.shop_table tr.cart_item .row-wrapper').length > 0) {
-        return; // If elements are already present, exit to prevent multiple executions
+    // Function to perform the desired actions
+    function performActionsOnTable() {
+        // Check if there are already '.row-wrapper' elements
+        if ($('table.shop_table tr.cart_item .row-wrapper').length > 0) {
+            return; // If elements are already present, exit to prevent multiple executions
+        }
+
+        const $labels = $('table.shop_table tr.cart_item dt');
+        $labels.each(function () {
+            $(this).next().andSelf().wrapAll('<div class="row-wrapper"/>');
+        });
+        $('table.shop_table tr.cart_item dd.variation-vegan,table.shop_table tr.cart_item dd.variation-gluten').remove();
+        $('table.shop_table tr.cart_item dt.variation-vegan,table.shop_table tr.cart_item dt.variation-gluten').each(function () {
+            const currentText = $(this).text(),
+                formattedText = currentText.replace(':', '');
+            $(this).text(formattedText);
+        });
+
+        $('table.shop_table ul.wc-item-meta li:contains("קישור תמונה")').hide();
     }
 
-    const $labels = $('table.shop_table tr.cart_item dt');
-    $labels.each(function () {
-        $(this).next().andSelf().wrapAll('<div class="row-wrapper"/>');
-    });
-    $('table.shop_table tr.cart_item dd.variation-vegan,table.shop_table tr.cart_item dd.variation-gluten').remove();
-    $('table.shop_table tr.cart_item dt.variation-vegan,table.shop_table tr.cart_item dt.variation-gluten').each(function () {
-        const currentText = $(this).text(),
-            formattedText = currentText.replace(':', '');
-        $(this).text(formattedText);
-    });
+    // Function to create a MutationObserver
+    function setTableKeys() {
+        const tableElement = $('table.shop_table')[0]; // Get the DOM element
 
-    $('table.shop_table ul.wc-item-meta li:contains("קישור תמונה")').hide();
-}
+        const observer = new MutationObserver(function (mutationsList, observer) {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList' && mutation.target === tableElement) {
+                    // All AJAX requests are completed, perform the actions
+                    $(document).ajaxStop(function () {
+                        performActionsOnTable();
+                    });
+                    break; // You can remove this if you want to continue observing
+                }
+            }
+        });
 
-// Function to create a MutationObserver
-function setTableKeys() {
-    const tableElement = $('table.shop_table')[0]; // Get the DOM element
+        // Configure and start the MutationObserver
+        const config = { childList: true, subtree: true };
+        observer.observe(tableElement, config);
+    }
 
-    const observer = new MutationObserver(function (mutationsList, observer) {
-        for (const mutation of mutationsList) {
-            if (mutation.type === 'childList' && mutation.target === tableElement) {
-                // All AJAX requests are completed, perform the actions
-                $(document).ajaxStop(function () {
-                    performActionsOnTable();
-                });
-                break; // You can remove this if you want to continue observing
+    function setDatepicker() {
+        var disabledDays = [];
+
+        // Calculate the next 3 business days (excluding Friday and Saturday)
+        var today = new Date();
+        var businessDaysCount = 0;
+
+        while (businessDaysCount < 3) {
+            today.setDate(today.getDate() + 1); // Move to the next day
+            var day = today.getDay();
+            if (day !== 5 && day !== 6) { // Skip Fridays (5) and Saturdays (6)
+                disabledDays.push(new Date(today)); // Add to disabled days
+                businessDaysCount++;
             }
         }
-    });
 
-    // Configure and start the MutationObserver
-    const config = { childList: true, subtree: true };
-    observer.observe(tableElement, config);
-}
+        $('#pickup-date').datepicker({
+            dateFormat: 'yy-mm-dd', // Customize the date format
+            minDate: 0, // Disable past dates
+            maxDate: '+10w', // Limit to the next 3 weeks
+            beforeShowDay: function (date) {
+                const formattedDate = $.datepicker.formatDate('yy-mm-dd', date);
+                const day = date.getDay();
+                // Disable Fridays (5) and Saturdays (6)
+                if (day === 5 || day === 6) {
+                    return [false, ''];
+                }
 
-// Start observing changes
-setTableKeys();
+                // Disable the closest 3 business days
+                for (var i = 0; i < disabledDays.length; i++) {
+                    if (date.toDateString() === disabledDays[i].toDateString()) {
+                        return [false, ''];
+                    }
+                }
 
+                if (formattedDate in pickupDatesData) {
+                    const dateItemsCount = +pickupDatesData[formattedDate];
+                    const isDateAvailable = dateItemsCount + pickupItemsCount <= pickupDateLimit;
+                    if (!isDateAvailable) {
+                        return [false, ''];
+                    }
+                }
+
+                return [true, ''];
+            }
+        });
+    }
 
 })(jQuery)

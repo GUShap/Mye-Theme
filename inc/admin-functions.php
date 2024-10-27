@@ -106,7 +106,7 @@ function create_image_from_text($text, $name, $font_size = 20, $font_color = [0,
     // Check if the image already exists
     if (file_exists($image_path)) {
         // Return the existing image id
-        $url = $upload_dir['baseurl'] . '/temp-images/image_' . $sanitized_text.'.png';
+        $url = $upload_dir['baseurl'] . '/temp-images/image_' . $sanitized_text . '.png';
         // dd($url);
         return attachment_url_to_postid($url);
     }
@@ -182,7 +182,182 @@ function mb_strrev($text)
     return $reversed;
 }
 
-function send_whatsapp_message($number, $message) {
+function get_pickup_orders()
+{
+    $orders_data = [];
+
+    // Query for WooCommerce orders with status "processing" or "completed"
+    $args = [
+        'status' => ['processing', 'completed'],
+        'limit' => -1, // No limit, retrieves all matching orders
+    ];
+
+    $orders = wc_get_orders($args);
+
+    foreach ($orders as $order) {
+        $pickup_date = $order->get_meta('pickup_date'); // Get the pickup_date meta
+        $order_id = $order->get_id();
+        if ($pickup_date) {
+            $formatted_date = date('Y-m-d', strtotime($pickup_date));
+
+            // Prepare data for this order
+            $order_data = [
+                'order_id' => $order_id,
+                'order_link' => admin_url("post.php?post={$order_id}&action=edit"),
+                'status' => $order->get_status(),
+                'items' => []
+            ];
+
+            // Loop through order items to check if they require pickup
+            foreach ($order->get_items() as $item_id => $item) {
+                $product_id = $item->get_product_id();
+                if (empty(get_field('require_pickup', $product_id)))
+                    continue;// Check ACF field 'require_pickup'
+                if (empty($order_data['items'][$product_id])) {
+                    $order_data['items'][$product_id] = [
+                        'name' => $item->get_name(),
+                        'qty' => 0,
+                    ];
+                }
+                $current_qty = $order_data['items'][$product_id]['qty'];
+                $order_data['items'][$product_id]['qty'] = $current_qty + $item->get_quantity();
+            }
+
+            // If there are items requiring pickup, add this order to the array
+            if (!empty($order_data['items'])) {
+                $orders_data[$formatted_date][] = $order_data;
+            }
+        }
+    }
+
+    // Sort orders by pickup date in ascending order
+    ksort($orders_data);
+
+    return $orders_data;
+}
+
+function get_pickup_order_items_count()
+{
+    $args = [
+        'status' => ['processing'],
+        'limit' => -1, // No limit, retrieves all matching orders
+    ];
+
+    $orders = wc_get_orders($args);
+    $dates_counter = [];
+    foreach ($orders as $order) {
+        $pickup_date = $order->get_meta('pickup_date'); // Get the pickup_date meta
+        if ($pickup_date) {
+            $formatted_date = date('Y-m-d', strtotime($pickup_date));
+            if (empty($dates_counter[$formatted_date])) {
+                $dates_counter[$formatted_date] = 0;
+            }
+            foreach ($order->get_items() as $item_id => $item) {
+                $product_id = $item->get_product_id();
+                if (empty(get_field('require_pickup', $product_id)))
+                    continue;// Check ACF field 'require_pickup'
+                $dates_counter[$formatted_date] += $item->get_quantity();
+            }
+        }
+    }
+
+    return $dates_counter;
+}
+
+function get_pickup_cart_items_count()
+{
+    $cart = WC()->cart;
+    $cart_items = $cart->get_cart();
+    $items_counter = 0;
+    foreach ($cart_items as $cart_item) {
+        $product_id = $cart_item['product_id'];
+        $quantity = $cart_item['quantity'];
+        $is_pickup_item = !empty(get_field('require_pickup', $product_id));
+        if ($is_pickup_item) {
+            $items_counter+= $quantity;
+        }
+    }
+
+    return $items_counter;
+}
+
+function fill_calendar_dates_by_month($dates_data)
+{
+    if (empty($dates_data)) {
+        return [];
+    }
+
+    // Get the first and last dates in the data
+    $dates = array_keys($dates_data);
+    sort($dates); // Sort dates to get the earliest and latest
+    $first_date = new DateTime($dates[0]);
+    $last_date = new DateTime($dates[count($dates) - 1]);
+
+    // Set to the beginning of the first month and end of the last month
+    $first_date->modify('first day of this month');
+    $last_date->modify('last day of this month');
+
+    $calendar_data = [];
+
+    // Iterate from the start to end date, filling missing dates
+    $current_date = clone $first_date;
+    while ($current_date <= $last_date) {
+        $date_key = $current_date->format('Y-m-d');
+        $month_key = $current_date->format('Y-m'); // "yyyy-mm" for month grouping
+
+        // Initialize the month if it doesn't exist
+        if (!isset($calendar_data[$month_key])) {
+            $calendar_data[$month_key] = [];
+        }
+
+        // Add date to the respective month, with order data or empty array
+        $calendar_data[$month_key][$date_key] = $dates_data[$date_key] ?? [];
+
+        $current_date->modify('+1 day'); // Move to the next day
+    }
+
+    return $calendar_data;
+}
+function format_hebrew_date($date)
+{
+    $date_obj = new DateTime($date);
+    return $date_obj->format('j');
+}
+
+function get_hebrew_month_name($month)
+{
+    $hebrew_months = [
+        "01" => "ינואר",
+        "02" => "פברואר",
+        "03" => "מרץ",
+        "04" => "אפריל",
+        "05" => "מאי",
+        "06" => "יוני",
+        "07" => "יולי",
+        "08" => "אוגוסט",
+        "09" => "ספטמבר",
+        "10" => "אוקטובר",
+        "11" => "נובמבר",
+        "12" => "דצמבר"
+    ];
+    return $hebrew_months[$month] ?? '';
+}
+
+function get_hebrew_days_of_week()
+{
+    return ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+}
+
+function get_day_of_week_number($date)
+{
+    $date_obj = new DateTime($date);
+    // Returns day of the week as 1 (Sunday) to 7 (Saturday)
+    $day_of_week = $date_obj->format('N'); // 1 (Monday) to 7 (Sunday)
+    return $day_of_week === '7' ? 1 : $day_of_week + 1; // Adjust for Sunday as 1
+}
+
+function send_whatsapp_message($number, $message)
+{
     $url = 'http://localhost:3000/send-message'; // URL of your local Node.js API
 
     $body = array(
@@ -191,9 +366,9 @@ function send_whatsapp_message($number, $message) {
     );
 
     $response = wp_remote_post($url, array(
-        'method'    => 'POST',
-        'body'      => wp_json_encode($body),
-        'headers'   => array(
+        'method' => 'POST',
+        'body' => wp_json_encode($body),
+        'headers' => array(
             'Content-Type' => 'application/json',
         ),
     ));

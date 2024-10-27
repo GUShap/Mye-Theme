@@ -1,5 +1,40 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit;
+}
 
+/************************/
+function display_sweet_management_page()
+{
+
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    $orders_data = get_pickup_orders() ?? [];
+    $workshop_data = get_option('workshop_data') ?? [];
+    $managment_page_template_path = HE_CHILD_THEME_DIR . 'templates/admin/managment/managment-page.php';
+    $calendar_tamplate_path = HE_CHILD_THEME_DIR . 'templates/calendar.php';
+    if (file_exists($managment_page_template_path)) {
+        require_once $managment_page_template_path;
+    }
+}
+function register_sweet_management_menu()
+{
+    add_menu_page(
+        'Sweet Management',            // Page title
+        'Sweet Management',            // Menu title
+        'manage_options',              // Capability required to access the page
+        'sweet_management',            // Menu slug
+        'display_sweet_management_page', // Function to display the page content
+        'dashicons-carrot',            // Icon (dashicons-carrot is an example icon)
+        25                             // Position in the menu
+    );
+}
+
+add_action('admin_menu', 'register_sweet_management_menu');
+
+
+/************************/
 function register_custom_widgets($widgets_manager)
 {
     require_once HE_CHILD_THEME_DIR . 'inc/elementor/widgets/product-widgets.php'; // Ensure this path is correct
@@ -22,8 +57,8 @@ add_action('delete_user_custom_image', 'delete_image_by_id', 10, 1);
 function enqueue_custom_admin_script()
 {
     // Enqueue the custom script
-    wp_enqueue_script('custom-admin-script', get_stylesheet_directory_uri() . '/assets/js/custom-admin-script.js', array('jquery'), time(), true);
-    wp_enqueue_style('custom-admin-style', get_stylesheet_directory_uri() . '/assets/css/custom-admin-style.css', array(), time(), 'all');
+    wp_enqueue_script('custom-admin-script', get_stylesheet_directory_uri() . '/assets/js/admin-script.js', array('jquery'), time(), true);
+    wp_enqueue_style('custom-admin-style', get_stylesheet_directory_uri() . '/assets/css/admin-style.css', array(), time(), 'all');
 }
 add_action('admin_enqueue_scripts', 'enqueue_custom_admin_script');
 
@@ -52,13 +87,22 @@ function enqueue_custom_script()
 
     if (is_cart()) {
         wp_enqueue_script('custom-cart-script', get_stylesheet_directory_uri() . '/assets/js/cart-script.js', array(), time(), true);
-        wp_enqueue_style('custom-cart-style', get_stylesheet_directory_uri() . '/assets/css/custom-cart-style.css', array(), time(), 'all');
+        wp_enqueue_style('custom-cart-style', get_stylesheet_directory_uri() . '/assets/css/cart-style.css', array(), time(), 'all');
     }
     if (is_checkout()) {
         // Enqueue the Hebrew locale file for Flatpickr from CDN.
         // wp_enqueue_script('flatpickr-hebrew-locale', 'https://npmcdn.com/flatpickr/dist/l10n/he.js', array('flatpickr'), null, true);
+        wp_enqueue_script('jquery-ui-datepicker');
+        wp_enqueue_style('jquery-ui-style', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+        wp_enqueue_style('custom-checkout-style', get_stylesheet_directory_uri() . '/assets/css/checkout-style.css', array(), time(), 'all');
         wp_enqueue_script('custom-checkout-script', get_stylesheet_directory_uri() . '/assets/js/checkout-script.js', array('jquery'), time(), true);
-        wp_enqueue_style('custom-checkout-style', get_stylesheet_directory_uri() . '/assets/css/custom-checkout-style.css', array(), time(), 'all');
+        wp_localize_script( 'custom-checkout-script', 'checkout_vars', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('checkout_nonce'),
+            'pickup_dates' => get_pickup_order_items_count(),
+            'pickup_dates_limit' => get_field('max_pickup_items', 'option'),
+            'pickup_items_count' => get_pickup_cart_items_count(),
+        ]);
 
     }
     wp_enqueue_script('theme-front', get_stylesheet_directory_uri() . '/assets/js/theme-front.js', array('jquery'), time(), true);
@@ -76,12 +120,13 @@ function load_slick_slider()
 }
 add_action('wp_enqueue_scripts', 'load_slick_slider');
 
-function enqueue_google_fonts() {
+function enqueue_google_fonts()
+{
     wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Rubik+Dirt&display=swap');
 }
 add_action('wp_enqueue_scripts', 'enqueue_google_fonts');
 
 
-add_action('template_redirect', function(){
-    send_whatsapp_message('972526033388', 'Hello from Mye Sweet 256256!');
+add_action('template_redirect', function () {
+    // send_whatsapp_message('972526033388', 'Hello from Mye Sweet 256256!');
 });

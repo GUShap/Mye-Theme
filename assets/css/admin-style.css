@@ -1,0 +1,182 @@
+/* ORDER */
+
+#woocommerce-order-items table.woocommerce_order_items .wc-order-item-thumbnail {
+    width: 160px !important;
+    height: unset !important;
+    aspect-ratio: 0.8;
+}
+
+#woocommerce-order-items table.woocommerce_order_items .wc-order-item-thumbnail {
+    background-color: transparent;
+    border: none;
+}
+
+#woocommerce-order-items table.woocommerce_order_items .wc-order-item-thumbnail img {
+    object-fit: contain;
+    border: 1px solid #696969;
+}
+
+#woocommerce-order-items table.display_meta th {
+    white-space: nowrap !important;
+    padding-bottom: 0;
+}
+
+#woocommerce-order-items table.display_meta tr {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 10px;
+}
+
+#woocommerce-order-items table.display_meta tr:has(.allergens_list) {
+    display: none;
+}
+
+#order-recipients-column {
+    width: 100% !important;
+    direction: rtl;
+}
+
+#order-recipients-column ul.recipients-list {
+    list-style: decimal;
+}
+
+#order-recipients-column ul.recipients-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+#order-recipients-column ul.recipients-list li p {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0;
+}
+
+#order-recipients-column ul.recipients-list li span {
+    white-space: nowrap;
+}
+
+#order-recipients-column ul.recipients-list li span.label {
+    font-weight: 800;
+}
+
+/*  */
+table.woocommerce_order_items thead th.item {
+    column-span: 1;
+}
+
+table.woocommerce_order_items #order_line_items td.thumb {
+    display: none;
+}
+
+/* Custom Order Managment */
+
+h1.managment-title {
+    text-align: center;
+}
+
+/* calendar */
+.calendar {
+    position: relative;
+}
+
+.dates-wrapper {
+    max-width: 1050px;
+    margin: 0 auto;
+    direction: rtl;
+    overflow: hidden;
+}
+
+.dates-wrapper .inner{
+    display: grid;
+    transition: all 0.5s linear;
+}
+
+.calendar-month {
+    width: 100%;
+}
+
+.calendar-days-of-week {
+    display: flex;
+    justify-content: space-around;
+    /* padding: 0 10px; */
+}
+
+.calendar-dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-date {
+    border: 1px solid #b5b5b5;
+}
+
+.date-content {
+    text-align: center;
+    aspect-ratio: 1.2;
+    overflow-y: auto;
+}
+
+.date-content p {
+    margin: 0;
+}
+
+.date-content:has(.no-orders) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+span.status {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.arrows-container {
+    --arrow-size: 30px;
+    display: flex;
+    justify-content: space-between;
+    width: 350px;
+    position: absolute;
+    top: 10px;
+    z-index: 1;
+}
+
+.arrow-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--arrow-size);
+    width: var(--arrow-size);
+    border-radius: 50%;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0 0 5px;
+    transition: all 0.3s ease;
+    border-color: #b5b5b5;
+}
+
+.arrow-button.next-month{
+    transform: rotate(-90deg);
+}
+
+.arrow-button.prev-month{
+    transform: rotate(90deg);
+}
+
+/* .arrow-button.hidden {
+    display: none;
+} */
+
+.arrow-button:hover {
+    background-color: #b5b5b5;
+    color: #fff;
+}
+
+.calendar:has(.first-month.centered) .arrow-button.prev-month,
+.calendar:has(.last-month.centered) .arrow-button.next-month{
+    display: none;
+}

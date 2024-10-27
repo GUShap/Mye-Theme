@@ -23,6 +23,7 @@
     setOrserItems();
     printImage();
     downloadImage();
+    setManagmentCalendar();
   });
 
   function setProductVariations() {
@@ -150,6 +151,31 @@
       document.body.appendChild(link); // Append to body to make it work in Firefox
       link.click(); // Programmatically click the link to trigger the download
       document.body.removeChild(link); // Clean up by removing the link
+    });
+  }
+
+  function setManagmentCalendar() {
+    const $container = $('#order-managment');
+    const $calendars = $container.find('.calendar');
+
+    $calendars.each(function () {
+      const $monthsNavArrow = $(this).find('.arrow-button');
+      const $datesWrapper = $(this).find('.dates-wrapper .inner');
+      
+      $monthsNavArrow.on('click', function () {
+        const $centeredMonth = $datesWrapper.find('.calendar-month.centered');
+        const isNext = $(this).hasClass('next-month');
+        const $nextMonth = isNext ? $centeredMonth.next() : $centeredMonth.prev();
+        const currentTranslateX = $datesWrapper.css('transform') !== 'none' ? +$datesWrapper.css('transform').split(',')[4] : 0;
+        const nextTranslateX = isNext ? currentTranslateX + $datesWrapper.width() : currentTranslateX - $datesWrapper.width();
+        if (!$nextMonth.length) return;
+        
+        // console.log(currentTranslateX);
+        $centeredMonth.removeClass('centered');
+        $nextMonth.addClass('centered');
+
+        $datesWrapper.css('transform', `translateX(${nextTranslateX}px)`);
+      });
     });
   }
 })(jQuery);

@@ -87,7 +87,7 @@ add_filter('woocommerce_dropdown_variation_attribute_options_html', 'add_label_a
 
 /********************/
 
-/***CART & CHECKOUT***/
+/*** CART ***/
 function update_cart_item_price($cart_object)
 {
     foreach ($cart_object->cart_contents as $cart_item_key => $cart_item) {
@@ -97,6 +97,7 @@ function update_cart_item_price($cart_object)
     }
 }
 add_action('woocommerce_before_calculate_totals', 'update_cart_item_price', 10, 1);
+
 
 function custom_modify_item_attributes($item_data, $cart_item)
 {
@@ -156,7 +157,7 @@ function add_custom_data_info($cart_item, $cart_item_key)
 }
 add_action('woocommerce_after_cart_item_name', 'add_custom_data_info', 10, 2);
 
-
+/***CHECKOUT***/
 function add_custom_data_info_checkout($quantity, $cart_item, $cart_item_key)
 {
     ob_start();
@@ -173,7 +174,6 @@ function hide_shipping_when_free_shipping_is_available($show_shipping)
     // Hide shipping by returning false (prevents shipping from being shown)
     return false;
 }
-
 add_filter('woocommerce_cart_ready_to_calc_shipping', 'hide_shipping_when_free_shipping_is_available', 99);
 
 function custom_pickup_information()
@@ -187,58 +187,33 @@ function custom_pickup_information()
 add_action('woocommerce_proceed_to_checkout', 'custom_pickup_information', 10);
 
 // Remove shipping methods and shipping address form from the checkout page
-function remove_shipping_details_on_checkout( $checkout ) {
-    if ( is_checkout() ) {
-        remove_action( 'woocommerce_checkout_shipping', 'woocommerce_checkout_shipping', 10 );
+function remove_shipping_details_on_checkout($checkout)
+{
+    if (is_checkout()) {
+        remove_action('woocommerce_checkout_shipping', 'woocommerce_checkout_shipping', 10);
     }
 }
-add_action( 'woocommerce_before_checkout_form', 'remove_shipping_details_on_checkout' );
+add_action('woocommerce_before_checkout_form', 'remove_shipping_details_on_checkout');
 
-/****************************/
-
-function shipping_instance_form_add_extra_fields($settings)
-{
-    $settings['shipping_zone_cities'] = [
-        'title' => 'יישובים',
-        'type' => 'text',
-        'placeholder' => '',
-        'description' => 'רשימת יישובים לאזור משלוח זה'
-    ];
-
-    return $settings;
-}
-function shipping_instance_form_fields_filters()
-{
-    $shipping_methods = WC()->shipping->get_shipping_methods();
-    foreach ($shipping_methods as $shipping_method) {
-        add_filter('woocommerce_shipping_instance_form_fields_' . $shipping_method->id, 'shipping_instance_form_add_extra_fields');
-    }
-}
-add_action('woocommerce_init', 'shipping_instance_form_fields_filters');
-
-function add_custom_checkout_fields($checkout)
+function set_order_recipients($checkout)
 {
     $recipients_details_template_path = HE_CHILD_THEME_DIR . '/templates/checkout/recipients-details.php';
     if (file_exists($recipients_details_template_path)) {
         include $recipients_details_template_path;
     }
 }
-add_action('woocommerce_after_checkout_billing_form', 'add_custom_checkout_fields');
+add_action('woocommerce_after_checkout_billing_form', 'set_order_recipients', 10);
 
-function change_cart_shipping_method_full_label($label, $method)
+// pickup calendar
+function set_product_pickup_selection()
 {
-    $method_id = $method->get_method_id();
-    $instance_id = $method->get_instance_id();
-    $method_settings = get_option('woocommerce_' . $method_id . '_' . $instance_id . '_settings');
-    ?>
-    <?php if (!empty($method_settings['shipping_zone_cities'])) { ?>
-        <input type="hidden" name="zone-cities-list" id="<?php echo $method_id . '_' . $instance_id ?>"
-            value="<?php echo $method_settings['shipping_zone_cities'] ?>">
-    <?php } ?>
-    <?php return $label;
+    $pickup_date_template_path = HE_CHILD_THEME_DIR . '/templates/checkout/pickup-selection.php';
+    if (file_exists($pickup_date_template_path)) {
+        include $pickup_date_template_path;
+    }
 }
-
-add_filter('woocommerce_cart_shipping_method_full_label', 'change_cart_shipping_method_full_label', 10, 2);
+add_action('woocommerce_after_checkout_billing_form', 'set_product_pickup_selection', 11);
+/****************************/
 
 /*** ORDER ***/
 

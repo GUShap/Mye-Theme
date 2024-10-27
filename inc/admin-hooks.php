@@ -98,36 +98,36 @@ function acf_location_rule_values_Post($choices)
 }
 
 // Add a custom tab to the product data section
-function custom_product_data_tab($tabs)
-{
-    $tabs['custom_tab'] = array(
-        'label' => __('Allergies', 'get_stylesheet()'),
-        'target' => 'custom_tab_data',
-        'class' => array('show_if_simple', 'show_if_variable'),
-    );
-    return $tabs;
-}
-add_filter('woocommerce_product_data_tabs', 'custom_product_data_tab');
+// function custom_product_data_tab($tabs)
+// {
+//     $tabs['custom_tab'] = array(
+//         'label' => __('Allergies', 'woocommerce'),
+//         'target' => 'custom_tab_data',
+//         'class' => array('show_if_simple', 'show_if_variable'),
+//     );
+//     return $tabs;
+// }
+// add_filter('woocommerce_product_data_tabs', 'custom_product_data_tab');
 // Add ACF field to custom tab on product page
-function add_acf_field_to_custom_tab()
-{
-    global $post;
+// function add_acf_field_to_custom_tab()
+// {
+//     global $post;
 
-    if (function_exists('acf_render_field')) {
-        echo '<div id="custom_tab_data" class="panel woocommerce_options_panel">';
-        echo '<div class="options_group">';
+//     if (function_exists('acf_render_field')) {
+//         echo '<div id="custom_tab_data" class="panel woocommerce_options_panel">';
+//         echo '<div class="options_group">';
 
-        foreach (acf_get_field_groups() as $field_group) {
-            if ($field_group['ID'] == 31) {
-                acf_render_fields($post->ID, acf_get_fields($field_group));
-            }
+//         foreach (acf_get_field_groups() as $field_group) {
+//             if ($field_group['ID'] == 31) {
+//                 acf_render_fields($post->ID, acf_get_fields($field_group));
+//             }
 
-        }
-        echo '</div>';
-        echo '</div>';
-    }
-}
-add_action('woocommerce_product_data_panels', 'add_acf_field_to_custom_tab');
+//         }
+//         echo '</div>';
+//         echo '</div>';
+//     }
+// }
+// add_action('woocommerce_product_data_panels', 'add_acf_field_to_custom_tab');
 
 function generate_attributes_combinations($attribute_values, $combination, &$attributes_combinations, $index = 0)
 {

@@ -1,0 +1,80 @@
+ul#shipping_method li input,
+ul#shipping_method li:not(:has(input:checked)) label{
+    display:none;
+}
+
+ul#shipping_method li:has(input:checked) label{
+    display: block;
+}
+
+.order-recipients-container{
+    margin: 25px 0;
+} 
+
+.recipients-option-wrapper{
+    gap:8px;
+}
+
+table.shop_table .row-wrapper{
+        display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+table.shop_table td.product-allergens{
+    display: flex;
+}
+
+table.shop_table .allergens-list{
+      padding: 0px;
+    list-style: none;  
+}
+
+.order-recipients-container .form-row.other-recipients .woocommerce-input-wrapper,
+.order-recipients-container .recipients-option-wrapper{
+    display: flex;
+}
+
+.order-recipients-container .form-row.other-recipients .woocommerce-input-wrapper{
+    gap: 60px;
+}
+
+.order-recipients-container .field-wrapper.second{
+    display: none;
+}
+.order-recipients-container:has(input#is_other_recipients_1:checked) .field-wrapper.second{
+    display: block;
+}
+
+.order-recipients-container ul.recipients-list{
+    margin-top: 25px;
+    padding: 0 8px 0;
+}
+
+.order-recipients-container ul.recipients-list li{
+    display: flex;
+    gap: 7px;
+}
+
+.order-recipients-container  .remove-recipient-btn{
+    margin-top: auto;
+    margin-bottom: 20px;
+    padding: 0 6px;
+    background-color: #fff;
+    border-radius: 50%;
+    font-weight: 800;
+    height: fit-content;
+    border-color: #D34875;
+}
+
+.order-recipients-container  .remove-recipient-btn:hover{
+    background-color: #D34875;
+}
+
+@media screen and (max-width: 768px){
+    
+table.shop_table tr.order-item .product-name{
+    max-width: 50%;
+}
+}

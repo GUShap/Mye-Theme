@@ -235,6 +235,11 @@
                 }
 
                 return [true, ''];
+            },
+            onSelect: function(dateText) {
+                $('#pickup-date-value').val(dateText);
+                const formattedDate = $.datepicker.formatDate('dd בMM, yy', new Date(dateText));
+                $(this).val(formattedDate);
             }
         });
     }

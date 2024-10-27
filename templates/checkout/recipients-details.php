@@ -18,8 +18,8 @@ if (!defined('ABSPATH')) {
             'type' => 'radio',
             'class' => array('other-recipients form-row-wide'),
             'options' => [
-                'true' => 'כן',
-                'false' => 'לא',
+                '1' => 'כן',
+                '' => 'לא',
             ],
             'label' => __('האם ההזמנה בעבור אנשים נוספים בעלי אלגיות?', 'woocommerce'),
             'required' => true,

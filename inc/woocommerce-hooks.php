@@ -216,42 +216,43 @@ add_action('woocommerce_after_checkout_billing_form', 'set_product_pickup_select
 /****************************/
 
 /*** ORDER ***/
-
-add_action('woocommerce_checkout_create_order', 'save_recipients_field_value', 10, 2);
-
-function save_recipients_field_value($order, $data)
+function save_custom_fields_value($order, $data)
 {
-    if ($_POST['is_other_recipients'] !== 'true')
-        return;
+    if (!empty($_POST['is_other_recipients'])) {
+        unset($_POST['is_other_recipients']);
 
-    unset($_POST['is_other_recipients']);
+        $recipients = [];
 
-    $recipients = [];
+        foreach ($_POST as $item_key => $item_value) {
+            if (strpos($item_key, 'recipient') === 0) {
+                $recipient_order = preg_match('/\d/', $item_key, $matches)
+                    ? reset($matches)
+                    : 1;
 
-    foreach ($_POST as $item_key => $item_value) {
-        if (strpos($item_key, 'recipient') === 0) {
-            $recipient_order = preg_match('/\d/', $item_key, $matches)
-                ? reset($matches)
-                : 1;
+                $detail_type = '';
 
-            $detail_type = '';
-
-            if (strpos($item_key, 'name') !== false) {
-                $detail_type = 'name';
-            } elseif (strpos($item_key, 'email') !== false) {
-                $detail_type = 'email';
-            } elseif (strpos($item_key, 'phone') !== false) {
-                $detail_type = 'phone';
+                if (strpos($item_key, 'name') !== false) {
+                    $detail_type = 'name';
+                } elseif (strpos($item_key, 'email') !== false) {
+                    $detail_type = 'email';
+                } elseif (strpos($item_key, 'phone') !== false) {
+                    $detail_type = 'phone';
+                }
+                // Move the item to the $recipientArray
+                $recipients['recipient_' . $recipient_order][$detail_type] = $item_value;
+                // Remove the item from the $inputArray if needed
+                unset($_POST[$item_key]);
             }
-            // Move the item to the $recipientArray
-            $recipients['recipient_' . $recipient_order][$detail_type] = $item_value;
-            // Remove the item from the $inputArray if needed
-            unset($_POST[$item_key]);
         }
+        $order->update_meta_data('_order_recipients', $recipients);
     }
-    $order->update_meta_data('_order_recipients', $recipients);
+
+    if(!empty($_POST['pickup_date'])){
+        $order->update_meta_data('pickup_date', $_POST['pickup_date']);
+    }
 }
 
+add_action('woocommerce_checkout_create_order', 'save_custom_fields_value', 10, 2);
 
 /***** ORDER ADMIN ******/
 

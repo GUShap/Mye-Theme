@@ -18,23 +18,23 @@ if (!defined('ABSPATH'))
             <li>
                 <em><?php echo get_the_title($attr_id) ?></em><span>:</span>
                 <ul class="inner-list">
-                    <?php foreach ($attr_vals as $attachment_id) {
-                        $attachment_url = wp_get_attachment_image_url($attachment_id, 'full');
-                        $attacment_title = get_the_title($attachment_id);
+                    <?php foreach ($attr_vals as $option_vals) {
+                        $image_src = $option_vals['image_src'];
+                        $option_label = $option_vals['label'];
                         ?>
                         <li>
                             <?php if ($printing_enabled) { ?>
-                                <a href="<?php echo $attachment_url ?>" target="_blank">
-                                    <?php echo wp_get_attachment_image($attachment_id, 'thumbnail'); ?>
+                                <a href="<?php echo $image_src ?>" target="_blank">
+                                    <img src="<?php echo $image_src ?>" alt="<?php echo $option_label ?>">
                                 </a>
                             <?php } else {
-                                echo "<p> $attacment_title </p>";
+                                echo "<p> $option_label </p>";
                             } ?>
                             <?php if ($printing_enabled) { ?>
                                 <div class="actions-wrapper">
-                                    <a href="#" class="print-image-link" data-image-src="<?php echo $attachment_url ?>">הדפסת
+                                    <a href="#" class="print-image-link" data-image-src="<?php echo $image_src ?>">הדפסת
                                         תמונה</a>
-                                    <a href="#" class="download-image-link" data-image-src="<?php echo $attachment_url ?>">הורדת
+                                    <a href="#" class="download-image-link" data-image-src="<?php echo $image_src ?>">הורדת
                                         תמונה</a>
                                 </div>
                             <?php } ?>

@@ -1,6 +1,8 @@
 ($ => {
     // Globals
     let selectedVariation = null;
+    let itemsData = {};
+
     // // 
     $(window).on('load', function () {
         setCustomDataToggle();
@@ -122,6 +124,7 @@
             const imageData = {
                 'attribute_id': $attribute.data('id'),
                 'option_id': this.id,
+                'label': this.dataset.label,
                 'url': selectionUrl
             }
             $imageSelectionWrapper.removeClass('active');
@@ -144,6 +147,7 @@
                 return {
                     'attribute_id': $attribute.data('id'),
                     'option_id': el.id,
+                    'label': el.dataset.label,
                     'url': el.value
                 }
             });
@@ -193,6 +197,7 @@
                 const imageData = {
                     'attribute_id': $attribute.data('id'),
                     'option_id': 'custom_image',
+                    'label': 'Custom Image',
                     'url': fileURL
                 }
                 if (file && file.type.startsWith('image/')) {
@@ -233,6 +238,7 @@
                     const imageData = {
                         'attribute_id': $attribute.data('id'),
                         'option_id': 'custom_image',
+                        'label': 'Custom Image',
                         'url': fileURL
                     }
                     setSingleImagePreview($attribute, imageData);
@@ -252,7 +258,7 @@
         });
     }
     function setCanvasDisplay(fileOrUrl, $canvas) {
-//         const ctx = $canvas[0].getContext('2d', { willReadFrequently: true });
+        // const ctx = $canvas[0].getContext('2d', { willReadFrequently: true });
         let canvasRotation = 0;
 
         const img = new Image();
@@ -267,14 +273,8 @@
         }
 
         img.onload = function () {
-            const isPortrait = img.height > img.width;
-            if (isPortrait) {
-                resizeCanvas($canvas, img.height, img.width);
-                drawImageRotated($canvas, img, -Math.PI / 2);
-            } else {
-                resizeCanvas($canvas, img.width, img.height);
-                drawImage($canvas, img);
-            }
+            $canvas.find('img').prop('src', img.src);
+            // resizeCanvas($canvas, $canvas.find('img').width(), $canvas.find('img').height());
             $canvas.show();
         };
 
@@ -292,6 +292,7 @@
             $canvas.css({
                 transform: `rotate(${canvasRotation}deg)`,
             });
+            // console.log($canvas.offset());
             // $canvas.offset({ top: currentCanvasOffsetTop });
             if ($canvas.hasClass('landscape')) {
                 $canvas.removeClass('landscape')
@@ -315,32 +316,39 @@
         $canvas[0].width = width;
         $canvas[0].height = height;
     }
-    // Draw the image normally on the canvas
-    function drawImage($canvas, img) {
-        const ctx = $canvas[0].getContext('2d');
-        ctx.clearRect(0, 0, $canvas[0].width, $canvas[0].height);
-        ctx.drawImage(img, 0, 0, $canvas[0].width, $canvas[0].height);
-    }
-    // Draw the image rotated on the canvas
-    function drawImageRotated($canvas, img, rotationAngle) {
-        const ctx = $canvas[0].getContext('2d');
-        ctx.save();
-        ctx.translate($canvas[0].width / 2, $canvas[0].height / 2);
-        ctx.rotate(rotationAngle);
-        ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
-        ctx.restore();
-    }
     // Add text box to the canvas (placeholder function)
     function addTextBox($canvas) {
         const $canvasContainer = $canvas.parent(); // Assuming the canvas has a parent container
 
         // Create a new text box element
-        const $textBox = $('<div contenteditable="true" class="text-box">טקסט אישי...</div>');
+        const $textBox = $('<div contenteditable="true" cancelable="false" class="text-box">טקסט אישי...</div>');
 
         // Append the text box to the canvas container
         $canvasContainer.append($textBox);
-        showTextBoxControls($textBox);
+        $textBox.selectText();
+        $textBox.on('input', function () {
+            const currentText = $(this).text();
+            const newHtml = currentText.split('').map(char => `<span>${char}</span>`).join('');
 
+            // $(this).html(newHtml);
+        });
+        let touchtime = 0;
+        $textBox.on("click", function () {
+            if (touchtime == 0) {
+                // set first clicks
+                touchtime = new Date().getTime();
+            } else {
+                // compare first click to this click and see if they occurred within double click threshold
+                if (((new Date().getTime()) - touchtime) < 400) {
+                    // double click occurred
+                    $(this).selectText();
+                    touchtime = 0;
+                } else {
+                    // not a double click so set as a new first click
+                    touchtime = new Date().getTime();
+                }
+            }
+        });
         // Make the text box draggable
         $textBox.draggable({
             containment: $canvasContainer,
@@ -458,8 +466,8 @@
         });
     }
     function setImageSelection($attribute) {
-        const $canvasWrapper = $attribute.find('.canvas-wrapper');
-        const $canvasElement = $canvasWrapper.find('.image-canvas');
+        const $canvasWrapper = $attribute.find('.canvas-container');
+        const $canvasElement = $canvasWrapper.find('.image-canvas img');
         const $controlsWrapper = $canvasWrapper.find('.controls-wrapper');
         const $saveImageButton = $('#next-step');
 
@@ -481,9 +489,9 @@
             const imageData = {
                 'attribute_id': $attribute.data('id'),
                 'option_id': 'custom_image',
+                'label': 'Custom Image',
                 'url': imageDataURL
             };
-            // localStorage.setItem('imageDataURL', imageDataURL);
             setSingleImagePreview($attribute, imageData);
         });
     }
@@ -495,6 +503,22 @@
             return imgData;
         });
     }
+    $.fn.selectText = function () {
+        let range, selection;
+        return this.each(function () {
+            if (document.body.createTextRange) {
+                range = document.body.createTextRange();
+                range.moveToElementText(this);
+                range.select();
+            } else if (window.getSelection) {
+                selection = window.getSelection();
+                range = document.createRange();
+                range.selectNodeContents(this);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        });
+    };
     /***************/
     function setSingleImagePreview($container, imageData, isLoader = false) {
         const $imagePreview = $container.find('.image-preview .preview-wrapper');
@@ -502,15 +526,15 @@
             $imagePreview.html('<div class="loader"></div>');
             return;
         } else {
-            $imagePreview.html(`<img src="${imageData.url}" data-attribute="${imageData.attribute_id}" data-option="${imageData.option_id}" alt="Canvas Preview" />`);
+            $imagePreview.html(`<img src="${imageData.url}" data-attribute="${imageData.attribute_id}" data-label="${imageData.label}" data-option="${imageData.option_id}" alt="Canvas Preview" />`);
         }
     }
 
     function setMultipleImagePreview($container, imagesData) {
         const $imagePreview = $container.find('.image-preview .preview-wrapper');
         let imagesHTML = '';
-        imagesData.forEach(imageDate => {
-            imagesHTML += `<img src="${imageDate.url}" data-attribute="${imageDate.attribute_id}" data-option="${imageDate.option_id}" alt="Canvas Preview" />`;
+        imagesData.forEach(imageData => {
+            imagesHTML += `<img src="${imageData.url}" data-attribute="${imageData.attribute_id}"  data-label="${imageData.label}" data-option="${imageData.option_id}" alt="Canvas Preview" />`;
         });
 
         $imagePreview.html(imagesHTML);
@@ -658,8 +682,7 @@
 
     function addAttributesToItemData($container) {
         const $attributes = $container.find('.attribute-wrapper');
-        const itemData = {};
-
+        itemsData = {};
         $attributes.each(function () {
             const $attribute = $(this);
             const $previewImages = $attribute.find('.image-preview .preview-wrapper img');
@@ -669,9 +692,10 @@
                 const attrID = $image.data('attribute');
                 const optionID = $image.data('option');
                 const url = $image.attr('src');
+                const label = $image.data('label');
 
-                if (!itemData[attrID]) itemData[attrID] = {};
-                itemData[attrID][optionID] = url;
+                if (!itemsData[attrID]) itemsData[attrID] = {};
+                itemsData[attrID][optionID] = { image_src: url, label };
             });
         });
 
@@ -681,10 +705,10 @@
                 type: 'POST',
                 data: {
                     action: 'add_attributes_to_item',
-                    item_data: itemData
+                    item_data: itemsData
                 },
                 success: function (response) {
-                    updateProductAfterDesign(response.data, itemData, $container);
+                    updateProductAfterDesign(response.data, itemsData, $container);
                 }
             }
         );
@@ -704,7 +728,7 @@
         const $customAttributesInput = $('input#custom-attributes');
 
         $container.closest('.custom-data-container').removeClass('active');
-        if(!formatteditemsData.length) return;
+        if (!formatteditemsData.length) return;
         $addedPriceInput.val(addedPrice);
         $customAttributesInput.val(JSON.stringify(formatteditemsData));
         $(gallerySelector).html(resGalleryHTML);
@@ -757,6 +781,7 @@
                     src: 'src',
                     itemSelector: '.product-image img',
                     imageMaxHeight: 0.95,
+                    arrows: false,
                 });
             }
         }, 10);
@@ -860,29 +885,30 @@
                 $thisbutton.removeClass('added');
                 $thisbutton.addClass('loading');
 
-                var data = {
+                const atcData = {
                     action: 'woocommerce_add_to_cart_variable_rc',
+                    items_data: itemsData
                 };
 
                 $variation_form.serializeArray().map(function (attr) {
                     if (attr.name !== 'add-to-cart') {
                         if (attr.name.endsWith('[]')) {
                             let name = attr.name.substring(0, attr.name.length - 2);
-                            if (!(name in data)) {
-                                data[name] = [];
+                            if (!(name in atcData)) {
+                                atcData[name] = [];
                             }
-                            data[name].push(attr.value);
+                            atcData[name].push(attr.value);
                         } else {
-                            data[attr.name] = attr.value;
+                            atcData[attr.name] = attr.value;
                         }
                     }
                 });
 
                 // Trigger event
-                $('body').trigger('adding_to_cart', [$thisbutton, data]);
+                $('body').trigger('adding_to_cart', [$thisbutton, atcData]);
 
                 // Ajax action
-                $.post(wc_add_to_cart_params.ajax_url, data, function (response) {
+                $.post(wc_add_to_cart_params.ajax_url, atcData, function (response) {
 
                     if (!response) {
                         return;

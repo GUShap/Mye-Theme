@@ -70,7 +70,8 @@ function add_attributes_to_item()
   $term_counter = 0;
 
   foreach ($item_data as $attr_id => $image_options) {
-    foreach ($image_options as $term_id => $image_src) {
+    foreach ($image_options as $term_id => $term_data) {
+      $image_src = $term_data['image_src'];
       $image_id = attachment_url_to_postid($image_src) ?? '';
       if ($term_counter === 0) {
         $term_id == 'custom_image' ? $fallback_image_url = $image_src : $main_image_id = $image_id;
@@ -107,41 +108,38 @@ add_action('wp_ajax_nopriv_add_attributes_to_item', 'add_attributes_to_item');
 
 function woocommerce_add_to_cart_variable_rc_callback()
 {
-  ob_start();
-
   $product_id = apply_filters('woocommerce_add_to_cart_product_id', absint($_POST['product_id']));
   $quantity = empty($_POST['quantity']) ? 1 : apply_filters('woocommerce_stock_amount', $_POST['quantity']);
   $variation_id = $_POST['variation_id'];
 
   $cart_item_data = [];
-
   $allergen_list = $_POST['allergen_list'] ?? [];
-  $custom_attributes_raw = !empty($_POST['custom_attributes']) ? json_decode(stripslashes($_POST['custom_attributes']), true) : [];
   $added_price = $_POST['added_price'] ?? 0;
+  $custom_attributes_raw = $_POST['items_data'] ?? [];
+
   $custom_attributes = [];
   if (!empty($custom_attributes_raw)) {
-    foreach ($custom_attributes_raw as $inner_array) {
-      foreach ($inner_array as $key => $values) {
-        foreach ($values as $idx => $value) {
-          switch ($value) {
-            case 'custom_image':
-              $base_64_file = WC()->session->get('custom_image');
-              $custom_image_id = save_user_image_as_file($base_64_file);
-              if ($custom_image_id) {
-                wp_schedule_single_event(time() + 3 * WEEK_IN_SECONDS, 'delete_user_custom_image', array($custom_image_id));
-              }
-              WC()->session->set('custom_image', '');
-              $custom_attributes[$key][$idx] = $custom_image_id;
-              break;
-            default:
-              $custom_attributes[$key][$idx] = str_replace("{$key}_", '', $value);
-              break;
+    foreach ($custom_attributes_raw as $attr_key => $inner_array) {
+
+      foreach ($inner_array as $option_key_raw => $values) {
+        if ($option_key_raw == 'custom_image') {
+          $base_64_file = WC()->session->get('custom_image');
+          $custom_image_id = save_user_image_as_file($base_64_file);
+          if ($custom_image_id) {
+            $values['image_src'] = wp_get_attachment_url($custom_image_id);
+            wp_schedule_single_event(time() + 3 * WEEK_IN_SECONDS, 'delete_user_custom_image', array($custom_image_id));
           }
+          WC()->session->set('custom_image', '');
         }
+        $option_key = $option_key_raw == 'custom_image'
+          ? 'custom_image'
+          : str_replace("{$attr_key}_", '', $option_key_raw);
+        $custom_attributes[$attr_key][$option_key] = $values;
+
       }
     }
   }
-
+  // return;
   if (!empty($allergen_list))
     $cart_item_data['allergen_list'] = $allergen_list;
 
@@ -153,15 +151,16 @@ function woocommerce_add_to_cart_variable_rc_callback()
 
   $variation = [];
 
-  foreach ($cart_item_data as $key => $values) {
-    if (preg_match("/^attribute*/", $key)) {
-      $variation[$key] = $values;
+  foreach ($cart_item_data as $option_key => $values) {
+    if (preg_match("/^attribute*/", $option_key)) {
+      $variation[$option_key] = $values;
     }
   }
 
   $passed_validation = apply_filters('woocommerce_add_to_cart_validation', true, $product_id, $quantity);
+  $added_to_cart = WC()->cart->add_to_cart($product_id, $quantity, $variation_id, $variation, $cart_item_data);
 
-  if ($passed_validation && WC()->cart->add_to_cart($product_id, $quantity, $variation_id, $variation, $cart_item_data)) {
+  if ($passed_validation && $added_to_cart) {
     do_action('woocommerce_ajax_added_to_cart', $product_id);
     if (get_option('woocommerce_cart_redirect_after_add') == 'yes') {
       wc_add_to_cart_message($product_id);

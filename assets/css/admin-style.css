@@ -76,6 +76,13 @@ h1.managment-title {
     text-align: center;
 }
 
+.custom-attributes-list img{
+    max-width: 150px;
+}
+
+.custom-attributes-list .inner-list{
+    margin: 0 15px;
+}
 /* calendar */
 .calendar {
     position: relative;

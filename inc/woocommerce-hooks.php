@@ -137,11 +137,13 @@ add_filter('woocommerce_checkout_create_order_line_item', 'add_custom_data_to_or
 
 function set_custom_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
 {
-    $custom_attributes_terms = !empty($cart_item['custom_attributes']) ? flatten_array($cart_item['custom_attributes']) : [];
+    $custom_attributes_terms = $cart_item['custom_attributes'] ?? [];
     if (!empty($custom_attributes_terms)) {
         $thumbnail_html = '<div class="cart-item-thumbnail-gallery">';
-        foreach ($custom_attributes_terms as $image_id) {
-            $thumbnail_html .= wp_get_attachment_image($image_id, 'thumbnail');
+        foreach ($custom_attributes_terms as $term_value_data) {
+            foreach ($term_value_data as $key => $value_set) {
+                $thumbnail_html .= '<img src="' . $value_set['image_src'] . '" alt="custom-image">';
+            }
         }
         $thumbnail_html .= '</div>';
         return $thumbnail_html;
@@ -247,7 +249,7 @@ function save_custom_fields_value($order, $data)
         $order->update_meta_data('_order_recipients', $recipients);
     }
 
-    if(!empty($_POST['pickup_date'])){
+    if (!empty($_POST['pickup_date'])) {
         $order->update_meta_data('pickup_date', $_POST['pickup_date']);
     }
 }
@@ -312,6 +314,7 @@ function modify_admin_html_output($buffer)
     // Search for specific HTML and replace it
     $search_replace = [
         '<th class="item sortable" colspan="2" data-sort="string-ins">Item</th>' => '<th class="item sortable" colspan="1" data-sort="string-ins">Item</th>',
+        '<th class="item sortable" colspan="2" data-sort="string-ins">פריט</th>' => '<th class="item sortable" colspan="1" data-sort="string-ins">פריט</th>',
     ];
 
     foreach ($search_replace as $search => $replace) {

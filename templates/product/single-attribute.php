@@ -86,7 +86,7 @@ if (!defined('ABSPATH'))
             </div>
         </div>
         <?php if ($is_user_text_enabled) { ?>
-            <div class="step canvas-wrapper">
+            <div class="step canvas-container">
                 <div class="controls-wrapper">
                     <div class="canvas-controls">
                         <button type="button" class="change-selection-button control-button">החלפת תמונה</button>
@@ -179,7 +179,9 @@ if (!defined('ABSPATH'))
                         </div>
                     </div>
                 </div>
-                <canvas class="image-canvas landscape"></canvas>
+                <!-- <div class="canvas-wrapper"> -->
+                    <div class="image-canvas landscape"><img src="" alt="custom preview"></div>
+                <!-- </div> -->
             </div>
         <?php } ?>
         <div class="step image-preview<?php echo $multiple_selection ? ' multiple' : '' ?>">

@@ -106,12 +106,8 @@ html:has(.custom-data-container.active) {
         font-size: 20px;
     }
 
-    .customize-design-container .content-wrapper:has(.image-canvas.landscape) {
+    .customize-design-container .content-wrapper{
         height: 495px;
-    }
-
-    .customize-design-container .content-wrapper:has(.image-canvas.portrait) {
-        height: 500px;
     }
 }
 
@@ -374,13 +370,9 @@ html:has(.custom-data-container.active) {
 
 
 @media (max-width: 768px) {
-    .image-canvas.landscape {
-        height: 250px;
-    }
-
+    .image-canvas.landscape,
     .image-canvas.portrait {
-        /* width: 345px; */
-        height: 250px;
+        height: 350px;
     }
 }
 
@@ -589,7 +581,7 @@ html:has(.custom-data-container.active) {
 
 @media (max-width:768px) {
     .footing-wrapper {
-        bottom: 20px;
+        bottom: 40px;
     }
 }
 

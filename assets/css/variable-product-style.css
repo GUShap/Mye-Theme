@@ -333,8 +333,11 @@ html:has(.custom-data-container.active) {
     gap: 10px;
 }
 
-.canvas-container:has(.portrait) {
-    height: 580px;
+@media (min-width: 768px) {
+
+    .canvas-container:has(.portrait) {
+        height: 580px;
+    }
 }
 
 .canvas-wrapper {

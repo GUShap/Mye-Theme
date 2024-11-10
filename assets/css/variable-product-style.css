@@ -111,7 +111,7 @@ html:has(.custom-data-container.active) {
     }
 
     .customize-design-container .content-wrapper:has(.image-canvas.portrait) {
-        height: 605px;
+        height: 500px;
     }
 }
 

@@ -372,12 +372,12 @@ html:has(.custom-data-container.active) {
 
 @media (max-width: 768px) {
     .image-canvas.landscape {
-        height: 315px;
+        height: 250px;
     }
 
     .image-canvas.portrait {
         /* width: 345px; */
-        height: 315px;
+        height: 250px;
     }
 }
 
@@ -394,6 +394,13 @@ html:has(.custom-data-container.active) {
     -webkit-user-modify: read-write;
     font-size: 25px;
     resize: both;
+}
+
+@media (max-width: 768px) {
+    .text-box {
+        top: 150px;
+        font-size: 16px;
+    }
 }
 
 .text-box input {

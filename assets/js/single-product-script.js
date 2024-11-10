@@ -304,6 +304,7 @@
             }
 
             $button.blur();
+            $canvas.find('img').offset({top:$canvas.offset().top})
         });
 
         // Add a new text box
@@ -319,7 +320,7 @@
         const $canvasContainer = $canvas.parent(); // Assuming the canvas has a parent container
 
         // Create a new text box element
-        const $textBox = $('<div class="text-box" resizable="resizable"><input type="text" cancelable="false" placeholder="טקסט אישי..." /></div>');
+        const $textBox = $('<div class="text-box"><input type="text" cancelable="false" placeholder="טקסט אישי..." /></div>');
 
         // Append the text box to the canvas container
         $canvasContainer.append($textBox);

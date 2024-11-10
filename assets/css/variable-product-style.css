@@ -370,9 +370,12 @@ html:has(.custom-data-container.active) {
 
 
 @media (max-width: 768px) {
-    .image-canvas.landscape,
+    
     .image-canvas.portrait {
-        height: 350px;
+        height: 310px;
+    }
+    .image-canvas.landscape{
+        height: 220px;
     }
 }
 

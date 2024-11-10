@@ -24,6 +24,14 @@ if (!defined('ABSPATH')) {
             $name = $recipient['name'];
             $email = $recipient['email'];
             $phone = $recipient['phone'];
+            // $status = 'לא נשלח';
+            $status = !empty($recipient['status'])
+                ? match ($recipient['status']) {
+                    'pending' => 'לא נשלח',
+                    'waiting' => 'ממתין',
+                    'complete' => 'חתם על טופס',
+                }
+                : 'לא נשלח';
             ?>
             <li>
                 <p class="name recipient-field">
@@ -36,7 +44,7 @@ if (!defined('ABSPATH')) {
                     <?php echo $phone ?>
                 </p>
                 <p class="status recipient-field">
-                    <?php echo $recipient['status'] ?? 'ממתין' ?>
+                    <?php echo $status ?>
                 </p>
                 <input type="hidden" name="<?php echo $recipient_label ?>_name" value="<?php echo $name ?>">
                 <input type="hidden" name="<?php echo $recipient_label ?>_email" value="<?php echo $email ?>">

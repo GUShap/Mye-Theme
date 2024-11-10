@@ -180,7 +180,7 @@ if (!defined('ABSPATH'))
                     </div>
                 </div>
                 <!-- <div class="canvas-wrapper"> -->
-                    <div class="image-canvas landscape"><img src="" alt="custom preview"></div>
+                    <div class="image-canvas"><img src="" alt="custom preview"></div>
                 <!-- </div> -->
             </div>
         <?php } ?>

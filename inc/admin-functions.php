@@ -274,7 +274,7 @@ function get_pickup_cart_items_count()
         $quantity = $cart_item['quantity'];
         $is_pickup_item = !empty(get_field('require_pickup', $product_id));
         if ($is_pickup_item) {
-            $items_counter+= $quantity;
+            $items_counter += $quantity;
         }
     }
 
@@ -356,13 +356,46 @@ function get_day_of_week_number($date)
     return $day_of_week === '7' ? 1 : $day_of_week + 1; // Adjust for Sunday as 1
 }
 
-function send_whatsapp_message($number, $message)
+function send_whatsapp_message(string $number, $message)
 {
-    $url = 'http://localhost:3000/send-message'; // URL of your local Node.js API
+    $url = get_rest_url() . 'magicwa/v1/send-message'; // URL of your local Node.js API
+    if (substr($number, 0, 1) === '0') {
+        $number = '972' . substr($number, 1);
+    }
+    $body = array(
+        'recipient' => $number,  // For example: '972545970911'
+        'message' => $message // For example: 'Hello from WordPress!'
+    );
+    $response = wp_remote_post($url, array(
+        'method' => 'POST',
+        'body' => wp_json_encode($body),
+        'headers' => array(
+            'Content-Type' => 'application/json',
+        ),
+    ));
+    if (is_wp_error($response)) {
+        error_log('Error sending WhatsApp message: ' . $response->get_error_message());
+    } else {
+        error_log('WhatsApp message sent successfully!');
+    }
+
+    return $response;
+}
+
+function send_multiple_messages($messages_data)
+{
+    $url = get_rest_url() . 'magicwa/v1/send-messages';
+    $req_data = [];
+
+    foreach($messages_data as $recipient => $message){
+        if (substr($recipient, 0, 1) === '0') {
+            $recipient = '972' . substr($recipient, 1);
+        }
+        $req_data[$recipient] = $message;
+    }
 
     $body = array(
-        'number' => $number,  // For example: '972545970911'
-        'message' => $message // For example: 'Hello from WordPress!'
+        'messages_data' => $req_data
     );
 
     $response = wp_remote_post($url, array(
@@ -371,11 +404,58 @@ function send_whatsapp_message($number, $message)
         'headers' => array(
             'Content-Type' => 'application/json',
         ),
+        'timeout' => 120
     ));
 
     if (is_wp_error($response)) {
-        error_log('Error sending WhatsApp message: ' . $response->get_error_message());
+        error_log('Error sending WhatsApp messages: ' . $response->get_error_message());
     } else {
-        error_log('WhatsApp message sent successfully!');
+        error_log('WhatsApp messages sent successfully!');
     }
+
+    return $response;
 }
+
+function send_message_to_multiple_recipients($recipients, $message)
+{
+    $url = get_rest_url() . 'magicwa/v1/send-messages';
+    $req_data = [];
+
+    foreach ($recipients as $recipient) {
+        if (substr($recipient, 0, 1) === '0') {
+            $recipient = '972' . substr($recipient, 1);
+        }
+        $req_data[$recipient] = $message;
+    }
+
+    $body = array(
+        'messages_data' => $req_data
+    );
+
+    $response = wp_remote_post($url, array(
+        'method' => 'POST',
+        'body' => wp_json_encode($body),
+        'headers' => array(
+            'Content-Type' => 'application/json',
+        ),
+        'timeout' => 120
+    ));
+
+    if (is_wp_error($response)) {
+        error_log('Error sending WhatsApp messages: ' . $response->get_error_message());
+    } else {
+        error_log('WhatsApp messages sent successfully!');
+    }
+
+    return $response;
+}
+
+add_action('template_redirect', function () {
+    $order_id = 12900;
+    $order_recipients = get_post_meta($order_id, '_order_recipients', true);
+
+    // dd($order_recipients);
+//     $message = "היי גיא, התקבלה אצלנו הזמנת קינוח עבורך, מספר הזמנה *12540*. כדי שכולם/ן יוכלו להנות עליך למלא טופס אישור רכיבים בקישור הבא https://shorturl.at/lOKpO";
+//     // dd(get_rest_url());
+//     send_message_to_multiple_recipients(['0545970911', '0526033388'], $message);
+});

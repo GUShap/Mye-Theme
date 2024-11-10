@@ -259,6 +259,7 @@
     }
     function setCanvasDisplay(fileOrUrl, $canvas) {
         // const ctx = $canvas[0].getContext('2d', { willReadFrequently: true });
+        $canvas.removeClass('portrait').removeClass('landscape');
         let canvasRotation = 0;
 
         const img = new Image();
@@ -274,14 +275,16 @@
 
         img.onload = function () {
             $canvas.find('img').prop('src', img.src);
-            // resizeCanvas($canvas, $canvas.find('img').width(), $canvas.find('img').height());
             $canvas.show();
-        };
+            $canvas.width() > $canvas.height()
+                ? $canvas.removeClass('portrait').addClass('landscape')
+                : $canvas.removeClass('landscape').addClass('portrait');
 
+        };
         // Rotate canvas left
+        $('.rotate-canvas-button').off('click');
         $('.rotate-canvas-button').on('click', function () {
             const $button = $(this);
-            const currentCanvasOffsetTop = $canvas.offset().top;
             if ($button.hasClass('left')) {
                 canvasRotation -= 90;
             }
@@ -289,18 +292,17 @@
                 canvasRotation += 90;
             }
             canvasRotation = canvasRotation % 360;
-            $canvas.css({
+            $canvas.find('img').css({
                 transform: `rotate(${canvasRotation}deg)`,
             });
-            // console.log($canvas.offset());
-            // $canvas.offset({ top: currentCanvasOffsetTop });
             if ($canvas.hasClass('landscape')) {
-                $canvas.removeClass('landscape')
-                $canvas.addClass('portrait')
+                $canvas.removeClass('landscape');
+                $canvas.addClass('portrait');
             } else {
-                $canvas.removeClass('portrait')
-                $canvas.addClass('landscape')
+                $canvas.removeClass('portrait');
+                $canvas.addClass('landscape');
             }
+
             $button.blur();
         });
 
@@ -311,44 +313,16 @@
             $(this).blur();
         });
     }
-    // Resize the canvas and adjust its dimensions
-    function resizeCanvas($canvas, width, height) {
-        $canvas[0].width = width;
-        $canvas[0].height = height;
-    }
+
     // Add text box to the canvas (placeholder function)
     function addTextBox($canvas) {
         const $canvasContainer = $canvas.parent(); // Assuming the canvas has a parent container
 
         // Create a new text box element
-        const $textBox = $('<div contenteditable="true" cancelable="false" class="text-box">טקסט אישי...</div>');
+        const $textBox = $('<div class="text-box" resizable="resizable"><input type="text" cancelable="false" placeholder="טקסט אישי..." /></div>');
 
         // Append the text box to the canvas container
         $canvasContainer.append($textBox);
-        $textBox.selectText();
-        $textBox.on('input', function () {
-            const currentText = $(this).text();
-            const newHtml = currentText.split('').map(char => `<span>${char}</span>`).join('');
-
-            // $(this).html(newHtml);
-        });
-        let touchtime = 0;
-        $textBox.on("click", function () {
-            if (touchtime == 0) {
-                // set first clicks
-                touchtime = new Date().getTime();
-            } else {
-                // compare first click to this click and see if they occurred within double click threshold
-                if (((new Date().getTime()) - touchtime) < 400) {
-                    // double click occurred
-                    $(this).selectText();
-                    touchtime = 0;
-                } else {
-                    // not a double click so set as a new first click
-                    touchtime = new Date().getTime();
-                }
-            }
-        });
         // Make the text box draggable
         $textBox.draggable({
             containment: $canvasContainer,
@@ -356,27 +330,33 @@
                 $canvasContainer.find('#text-box-controls .input-wrapper').removeClass('active');
             },
             stop: function () {
-                $(this).focus();
                 showTextBoxControls($(this));
+                $(this).find('input').focus();
             }
         });
-        // $textBox.focus();
         // Attach event to handle text box selection
-        $textBox.on('focus', function (e) {
-            e.stopPropagation(); // Prevent event bubbling
-            showTextBoxControls($(this)); // Pass the selected text box for control
+        $textBox.find('input').on('focus', function (e) {
+            // e.stopPropagation(); // Prevent event bubbling
+            showTextBoxControls($textBox); // Pass the selected text box for control
+        });
+
+        $textBox.find('input').on('input', function () {
+            // const $input = $(this);
+            // console.log($input.width());
+            // if ($input.width() > 15) {
+            //     $input.parent().width($input.width());
+            // }
         });
         // Deselect text box when clicking outside
         $canvasContainer.on('click', function () {
             hideTextBoxControls(); // Hide controls when clicking outside of the text box
         });
-
-        $textBox.on('input', function () {
-            const text = $(this).text();
-            setTimeout(() => {
-                if (!$(this).text()) $(this).remove();
-            }, 2500);
+        $textBox.find('input').focus();
+        $textBox.on('click', function (e) {
+            e.stopPropagation();
+            $(this).find('input').focus();
         });
+        $textBox.outerWidth($canvas.width() * 0.75);
     }
     // Function to show controls for the selected text box
     function showTextBoxControls($textBox) {
@@ -386,25 +366,25 @@
         $controls.show();
 
         // Update controls with the current styles of the selected text box
-        $controls.find('#font-family').val($textBox.css('font-family'));
-        $controls.find('#font-size').val(parseInt($textBox.css('font-size')));
-        $controls.find('#font-weight').val($textBox.css('font-weight'));
-        $controls.find('#text-color').val(rgbToHex($textBox.css('color')));
+        $controls.find('#font-family').val($textBox.find('input').css('font-family'));
+        $controls.find('#font-size').val(parseInt($textBox.find('input').css('font-size')));
+        $controls.find('#font-weight').val($textBox.find('input').css('font-weight'));
+        $controls.find('#text-color').val(rgbToHex($textBox.find('input').css('color')));
         $controls.find('#bg-color').val(rgbToHex($textBox.css('background-color')));
 
         // Attach change events to the control inputs for the specific text box
         $controls.find('#font-family').off('change').on('change', function () {
-            $textBox.css('font-family', $(this).val());
+            $textBox.find('input').css('font-family', $(this).val());
             $(this).siblings('label').find('button').click();
         });
         $controls.find('#font-size').off('input').on('input', function () {
-            $textBox.css('font-size', $(this).val() + 'px');
+            $textBox.find('input').css('font-size', $(this).val() + 'px');
         });
         $controls.find('#font-weight').off('input').on('input', function () {
-            $textBox.css('font-weight', $(this).val());
+            $textBox.find('input').css('font-weight', $(this).val());
         });
         $controls.find('#text-color').off('change').on('change', function () {
-            $textBox.css('color', $(this).val());
+            $textBox.find('input').css('color', $(this).val());
         });
         $controls.find('#bg-color').off('change').on('change', function () {
             $textBox.css('background-color', $(this).val());
@@ -503,22 +483,6 @@
             return imgData;
         });
     }
-    $.fn.selectText = function () {
-        let range, selection;
-        return this.each(function () {
-            if (document.body.createTextRange) {
-                range = document.body.createTextRange();
-                range.moveToElementText(this);
-                range.select();
-            } else if (window.getSelection) {
-                selection = window.getSelection();
-                range = document.createRange();
-                range.selectNodeContents(this);
-                selection.removeAllRanges();
-                selection.addRange(range);
-            }
-        });
-    };
     /***************/
     function setSingleImagePreview($container, imageData, isLoader = false) {
         const $imagePreview = $container.find('.image-preview .preview-wrapper');

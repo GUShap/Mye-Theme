@@ -96,7 +96,7 @@ function enqueue_custom_script()
         wp_enqueue_style('jquery-ui-style', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
         wp_enqueue_style('custom-checkout-style', get_stylesheet_directory_uri() . '/assets/css/checkout-style.css', array(), time(), 'all');
         wp_enqueue_script('custom-checkout-script', get_stylesheet_directory_uri() . '/assets/js/checkout-script.js', array('jquery'), time(), true);
-        wp_localize_script( 'custom-checkout-script', 'checkout_vars', [
+        wp_localize_script('custom-checkout-script', 'checkout_vars', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('checkout_nonce'),
             'pickup_dates' => get_pickup_order_items_count(),
@@ -126,7 +126,86 @@ function enqueue_google_fonts()
 }
 add_action('wp_enqueue_scripts', 'enqueue_google_fonts');
 
+// scheduled actions
+function magic_wa_send_message_handler($order_id, $recipient_index, $phone, $message)
+{
+    // Format phone number if it starts with '0'
+    if (strpos($phone, '0') === 0) {
+        $phone = '972' . substr($phone, 1);
+    }
+
+    // Send the WhatsApp message
+    $result = send_whatsapp_message($phone, $message);
+
+    // Check if message was sent successfully
+    if (!is_wp_error($result)) {
+        // Update the recipient's status in order meta
+        $order_recipients = get_post_meta($order_id, '_order_recipients', true);
+
+        if (!empty($order_recipients) && isset($order_recipients[$recipient_index])) {
+            $order_recipients[$recipient_index]['status'] = 'waiting';
+            $order_recipients[$recipient_index]['message_time'] = time();
+            update_post_meta($order_id, '_order_recipients', $order_recipients);
+        }
+    }
+}
+add_action('magic_wa_send_message_scheduled', 'magic_wa_send_message_handler', 10, 4);
+
+function magic_wa_message_multiple_recipients_handler($order_id, $recipients, $message)
+{
+    $result = send_message_to_multiple_recipients($recipients, $message);
+    if (!is_wp_error($result)) {
+        $order_recipients = get_post_meta($order_id, '_order_recipients', true);
+        foreach ($recipients as $recipient) {
+            $recipient_index = $recipient['index'];
+            if (!empty($order_recipients) && isset($order_recipients[$recipient_index])) {
+                $order_recipients[$recipient_index]['status'] = 'waiting';
+                $order_recipients[$recipient_index]['message_time'] = time();
+            }
+        }
+        update_post_meta($order_id, '_order_recipients', $order_recipients);
+    }
+}
+add_action('magic_wa_message_multiple_recipients_schedule', 'magic_wa_message_multiple_recipients_handler', 10, 4);
+
+function magic_wa_send_multiple_messages_handler($order_id, $messages_data)
+{
+    $result = send_multiple_messages($messages_data);
+
+    if (!is_wp_error($result)) {
+        $order_recipients = get_post_meta($order_id, '_order_recipients', true);
+        foreach ($order_recipients as $recipient_idx => $recipient_data) {
+            if (!empty($order_recipients) && isset($order_recipients[$recipient_idx])) {
+                $order_recipients[$recipient_idx]['status'] = 'waiting';
+                $order_recipients[$recipient_idx]['message_time'] = time();
+            }
+        }
+        update_post_meta($order_id, '_order_recipients', $order_recipients);
+    }
+}
+add_action('magic_wa_send_multiple_messages_schedule', 'magic_wa_send_multiple_messages_handler', 10, 2);
 
 add_action('template_redirect', function () {
-    // send_whatsapp_message('972526033388', 'Hello from Mye Sweet 256256!');
+    $order_id = 12909;
+    $order_recipients = get_post_meta($order_id, '_order_recipients', true);
+    // dd($order_recipients);
+    // $messages_data = [];
+
+    // if (empty($order_recipients))
+    //     return;
+    // // Check if there are recipients to process
+    // foreach ($order_recipients as $index => $recipient) {
+    //     // Check if the recipient's status is 'pending'
+    //     if (isset($recipient['status']) && $recipient['status'] !== 'pending')
+    //         continue;
+    //     // Extract the phone number
+    //     $phone = $recipient['phone'];
+    //     $message = "היי {$recipient['name']}, התקבלה אצלנו הזמנת קינוח עבורך, מספר הזמנה *{$order_id}* 🎂🎂🎂. כדי שכולם/ן יוכלו להנות עליך למלא טופס אישור רכיבים בקישור הבא https://shorturl.at/lOKpO";
+    //     $messages_data[$phone] = $message;
+
+    // }
+    // wp_schedule_single_event(time(), 'magic_wa_send_multiple_messages_schedule', [
+    //     'order_id' => $order_id,
+    //     'messages_data' => json_encode($messages_data), // Encode as JSON
+    // ]);
 });

@@ -347,26 +347,28 @@ html:has(.custom-data-container.active) {
     z-index: 1;
 }
 
-.canvas-container .image-canvas {
-    /* display: block; */
-    /* background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center; */
-    /* aspect-ratio: 1.5; */
-    /* max-height: 100%; */
+.image-canvas {
+    position: relative;
     height: 470px;
+
 }
 
-.canvas-container .image-canvas img{
+.image-canvas.portrait {
+    aspect-ratio: 0.706;
+}
+
+.image-canvas.landscape {
+    aspect-ratio: 1.25;
+}
+
+.canvas-container .image-canvas:is(.landscape, .portrait) img {
     width: 100%;
     height: 100%;
+    inset: 0;
     object-fit: contain;
+    position: absolute;
 }
 
-/* .image-canvas.portrait img{
-    width: 470px;
-    height: 100%;
-} */
 
 @media (max-width: 768px) {
     .image-canvas.landscape {
@@ -374,7 +376,7 @@ html:has(.custom-data-container.active) {
     }
 
     .image-canvas.portrait {
-        width: 345px;
+        /* width: 345px; */
         height: 315px;
     }
 }
@@ -382,14 +384,25 @@ html:has(.custom-data-container.active) {
 .text-box {
     position: absolute;
     top: 330px;
-    left: 50%;
+    width: 100%;
+    /* left: 50%; */
     background: #fff;
     padding: 5px 8px;
     cursor: move;
-    font-size: 25px;
     color: #000;
     font-weight: normal;
     -webkit-user-modify: read-write;
+    font-size: 25px;
+    resize: both;
+}
+
+.text-box input {
+    border: none !important;
+    outline: none !important;
+    background: transparent;
+    padding: 0 !important;
+    width: fit-content !important;
+    min-width: 100% !important;
 }
 
 .text-box:focus {

@@ -160,16 +160,32 @@ function add_custom_data_info($cart_item, $cart_item_key)
 add_action('woocommerce_after_cart_item_name', 'add_custom_data_info', 10, 2);
 
 /***CHECKOUT***/
+add_filter('woocommerce_cart_item_permalink', '__return_false');
+
 function add_custom_data_info_checkout($quantity, $cart_item, $cart_item_key)
 {
     ob_start();
     set_item_custom_information($cart_item);
     $custom_data_info = ob_get_clean();
-    return $quantity . $custom_data_info;
+    return "$quantity$custom_data_info";
 }
 add_filter('woocommerce_checkout_cart_item_quantity', 'add_custom_data_info_checkout', 10, 3);
 
-add_filter('woocommerce_cart_item_permalink', '__return_false');
+function add_variation_info($quantity, $cart_item, $cart_item_key)
+{
+    ob_start();
+    set_custom_variation_attr_list($cart_item);
+    return ob_get_clean();
+}
+add_filter('woocommerce_checkout_cart_item_quantity', 'add_variation_info', 11, 3);
+
+function filter_woocommerce_get_item_data($item_data, $cart_item)
+{
+    return null;
+}
+
+// add the filter 
+add_filter('woocommerce_get_item_data', 'filter_woocommerce_get_item_data', 10, 2);
 
 function hide_shipping_when_free_shipping_is_available($show_shipping)
 {
@@ -220,34 +236,35 @@ add_action('woocommerce_after_checkout_billing_form', 'set_product_pickup_select
 /*** ORDER ***/
 function save_custom_fields_value($order, $data)
 {
-    if (!empty($_POST['is_other_recipients'])) {
-        unset($_POST['is_other_recipients']);
+    $is_other_recipients = !empty($_POST['is_other_recipients']);
+    $form_recipients = $_POST['recipients'] ?? [];
+    $recipients = [];
 
-        $recipients = [];
+    $billing_email = $order->get_billing_email();
+    $billing_phone = $order->get_billing_phone();
+    $billing_first_name = $order->get_billing_first_name();
+    $billing_last_name = $order->get_billing_last_name();
 
-        foreach ($_POST as $item_key => $item_value) {
-            if (strpos($item_key, 'recipient') === 0) {
-                $recipient_order = preg_match('/\d/', $item_key, $matches)
-                    ? reset($matches)
-                    : 1;
+    $recipients[0] = [
+        'name' => "$billing_first_name $billing_last_name",
+        'email' => $billing_email,
+        'phone' => $billing_phone,
+        'status' => 'pending'
+    ];
 
-                $detail_type = '';
-
-                if (strpos($item_key, 'name') !== false) {
-                    $detail_type = 'name';
-                } elseif (strpos($item_key, 'email') !== false) {
-                    $detail_type = 'email';
-                } elseif (strpos($item_key, 'phone') !== false) {
-                    $detail_type = 'phone';
-                }
-                // Move the item to the $recipientArray
-                $recipients['recipient_' . $recipient_order][$detail_type] = $item_value;
-                // Remove the item from the $inputArray if needed
-                unset($_POST[$item_key]);
-            }
+    if ($is_other_recipients) {
+        foreach ($form_recipients as $recipient_idx => $recipient_data) {
+           if(empty($recipient_data['name']) || empty($recipient_data['phone'])) continue;
+            $recipients[$recipient_idx + 1] = [
+                'name' => $recipient_data['name'],
+                'email' => $recipient_data['email'],
+                'phone' => $recipient_data['phone'],
+                'status' => 'pending'
+            ];
         }
-        $order->update_meta_data('_order_recipients', $recipients);
     }
+
+    $order->update_meta_data('_order_recipients', $recipients);
 
     if (!empty($_POST['pickup_date'])) {
         $order->update_meta_data('pickup_date', $_POST['pickup_date']);
@@ -256,6 +273,33 @@ function save_custom_fields_value($order, $data)
 
 add_action('woocommerce_checkout_create_order', 'save_custom_fields_value', 10, 2);
 
+function notify_order_recipients($order_id)
+{
+    // Retrieve the '_order_recipients' meta as an array
+    $order_recipients = get_post_meta($order_id, '_order_recipients', true);
+    $messages_data = [];
+
+    if (empty($order_recipients))
+        return;
+    // Check if there are recipients to process
+    foreach ($order_recipients as $index => $recipient) {
+        // Check if the recipient's status is 'pending'
+        if (isset($recipient['status']) && $recipient['status'] !== 'pending')
+            continue;
+        // Extract the phone number
+        $phone = $recipient['phone'];
+        $message = "היי {$recipient['name']}, התקבלה אצלנו הזמנת קינוח עבורך, מספר הזמנה *{$order_id}* 🎂🎂🎂. כדי שכולם/ן יוכלו להנות עליך למלא טופס אישור רכיבים בקישור הבא https://shorturl.at/lOKpO";
+        $messages_data[$phone] = $message;
+
+    }
+    // Run the WhatsApp function to send a message
+    magic_wa_send_multiple_messages_handler($order_id, $messages_data);
+
+    // send_multiple_messages($messages_data);
+}
+
+add_action('woocommerce_order_status_processing', 'notify_order_recipients', 10, 1);
+
 /***** ORDER ADMIN ******/
 
 // Add custom data to the .order_data_column section in the order details table.
@@ -263,6 +307,12 @@ function add_custom_order_data_as_column($order)
 {
     // Get the custom data you want to display.
     $order_recipients = get_post_meta($order->get_id(), '_order_recipients', true);
+    // foreach ($order_recipients as $resipient_key => $recipient) {
+    //     $order_recipients[$resipient_key]['status'] = 'pending';
+    // }
+    // $order->update_status('pending');
+    // $order->update_meta_data('_order_recipients', $order_recipients);
+    // $order->save();
 
     // Check if the custom data exists.
     if (!empty($order_recipients)) {

@@ -85,20 +85,29 @@ if (!defined('ABSPATH'))
                 </div>
             </div>
         </div>
-        <?php if ($is_user_text_enabled) { ?>
+        <?php if ($is_user_text_enabled) {
+            $rotate_right_svg = get_field('rotate_right_icon', 'option');
+            $rotate_left_svg = get_field('rotate_left_icon', 'option');
+            $font_family_svg = get_field('font_family_icon', 'option');
+            $font_size_svg = get_field('font_size_icon', 'option');
+            $font_weight_svg = get_field('font_weight_icon', 'option');
+            $text_color_svg = get_field('text_color_icon', 'option');
+            $bg_color_svg = get_field('bg_color_icon', 'option');
+            ?>
             <div class="step canvas-container">
                 <div class="controls-wrapper">
                     <div class="canvas-controls">
                         <button type="button" class="change-selection-button control-button">החלפת תמונה</button>
-                        <button class="rotate-canvas-button right control-button" id="rotate-right" type="button">סיבוב
-                            ימינה</button>
-                        <button class="rotate-canvas-button left control-button" id="rotate-left" type="button">סיבוב
-                            שמאלה</button>
+                        <button class="rotate-canvas-button right control-button" id="rotate-right"
+                            type="button"><?php echo wp_get_attachment_image($rotate_right_svg, 'full', true); ?></button>
+                        <button class="rotate-canvas-button left control-button" id="rotate-left"
+                            type="button"><?php echo wp_get_attachment_image($rotate_left_svg, 'full', true); ?></button>
                         <button class="control-button" id="add-text-box" type="button">הוספת טקסט</button>
                     </div>
                     <div id="text-box-controls" style="display:none;">
                         <div class="input-wrapper type-select">
-                            <label for="font-family"><button type="button" class="control-button">פונט</button></label>
+                            <label for="font-family"><button type="button"
+                                    class="control-button"><?php echo wp_get_attachment_image($font_family_svg, 'full', true); ?></button></label>
                             <select id="font-family">
                                 <option value="Alef">Alef</option>
                                 <option value="Amatic SC">Amatic SC</option>
@@ -153,34 +162,38 @@ if (!defined('ABSPATH'))
                             </select>
                         </div>
                         <div class="input-wrapper type-number">
-                            <label for="font-size"><button type="button" class="control-button">גודל
-                                    טקסט</button></label>
-                            <input type="range" id="font-size" value="16" min="8" max="72" placeholder="גודל טקסט">
+                            <label for="font-size"><button type="button"
+                                    class="control-button"><?php echo wp_get_attachment_image($font_size_svg, 'full', true); ?></button></label>
+                            <input type="range" id="font-size" value="16" min="8" max="72">
                         </div>
                         <div class="input-wrapper type-number">
-                            <label for="font-weight"><button type="button" class="control-button">משקל</button></label>
-                            <input type="range" id="font-weight" value="300" min="100" max="900" placeholder="עובי טקסט">
+                            <label for="font-weight">
+                                <button type="button" class="control-button">
+                                    <?php echo wp_get_attachment_image($font_weight_svg, 'full', true); ?>
+                                </button>
+                            </label>
+                            <input type="range" id="font-weight" value="300" min="100" max="900">
                         </div>
                         <div class="input-wrapper type-color">
                             <label for="text-color">
-                                <button class="control-button" id="text-color-button" data-val-selector="#text-color"
-                                    type="button">צבע
-                                    טקסט</button>
+                                <button type="button" class="control-button" id="text-color-button" data-val-selector="#text-color">
+                                    <?php echo wp_get_attachment_image($text_color_svg, 'full', true); ?>
+                                </button>
                             </label>
                             <input type="hidden" id="text-color" value="#000000">
                         </div>
                         <div class="input-wrapper type-color">
                             <label for="bg-color">
-                                <button class="control-button" id="bg-color-button" data-val-selector="#bg-color"
-                                    type="button">צבע
-                                    רקע</button>
+                                <button type="button" class="control-button" id="bg-color-button"data-val-selector="#bg-color">
+                                    <?php echo wp_get_attachment_image($bg_color_svg, 'full', true); ?>
+                                </button>
                             </label>
                             <input type="hidden" name="" id="bg-color" value="#ffffff">
                         </div>
                     </div>
                 </div>
                 <!-- <div class="canvas-wrapper"> -->
-                    <div class="image-canvas"><img src="" alt="custom preview"></div>
+                <div class="image-canvas"><img src="" alt="custom preview"></div>
                 <!-- </div> -->
             </div>
         <?php } ?>

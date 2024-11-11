@@ -14,3 +14,17 @@ function add_allergy_form_submitted_order_status() {
 }
 add_action('init', 'add_allergy_form_submitted_order_status');
 
+function allow_svg_upload($mime_types) {
+    $mime_types['svg']  = 'image/svg+xml'; // Add SVG support
+    $mime_types['svgz'] = 'image/svg+xml'; // Add compressed SVG support
+    return $mime_types;
+}
+add_filter('upload_mimes', 'allow_svg_upload');
+
+function sanitize_svg_on_upload($data, $file, $filename, $mimes) {
+    if (isset($data['type']) && 'image/svg+xml' === $data['type']) {
+        // Optional: Sanitize SVG content here for additional security
+    }
+    return $data;
+}
+add_filter('wp_check_filetype_and_ext', 'sanitize_svg_on_upload', 10, 4);

@@ -304,7 +304,7 @@
             }
 
             $button.blur();
-            $canvas.find('img').offset({top:$canvas.offset().top})
+            $canvas.find('img').offset({ top: $canvas.offset().top })
         });
 
         // Add a new text box
@@ -320,7 +320,10 @@
         const $canvasContainer = $canvas.parent(); // Assuming the canvas has a parent container
 
         // Create a new text box element
-        const $textBox = $('<div class="text-box"><input type="text" cancelable="false" placeholder="טקסט אישי..." /></div>');
+        const $textInput = $('<input type="text" placeholder="טקסט אישי..." />');
+        const $deleteButton = $('<button type="button" class="remove-textbox-button">&#215;</button>');
+        const $textBox = $(`<div class="text-box" cancelable="false"></div>`);
+        $textBox.append($textInput, $deleteButton);
 
         // Append the text box to the canvas container
         $canvasContainer.append($textBox);
@@ -342,11 +345,7 @@
         });
 
         $textBox.find('input').on('input', function () {
-            // const $input = $(this);
-            // console.log($input.width());
-            // if ($input.width() > 15) {
-            //     $input.parent().width($input.width());
-            // }
+
         });
         // Deselect text box when clicking outside
         $canvasContainer.on('click', function () {
@@ -358,6 +357,35 @@
             $(this).find('input').focus();
         });
         $textBox.outerWidth($canvas.width() * 0.75);
+
+        let touchStartTime = 0;
+        let isDragging = false;
+        $textBox.on('touchstart, mousedown', function (e) {
+            touchStartTime = new Date().getTime();
+
+        });
+
+
+        $textBox.find('input').on('touchmove', function (e) {
+            const currentTime = new Date().getTime();
+            if (currentTime - touchStartTime > 300) {
+                $(this).css('z-index', -1);
+                $(this).blur();
+                const dragEvent = $.Event('touchmove', {
+                    pageX: e.pageX,
+                    pageY: e.pageY
+                });
+                console.log(dragEvent);
+                $textBox.trigger(dragEvent);
+            }
+        });
+
+        $deleteButton.on('click', function () {
+            $textBox.remove();
+        });
+
+        makeCornerResizable($textBox);
+        // enableLongPressDrag($textBox);
     }
     // Function to show controls for the selected text box
     function showTextBoxControls($textBox) {
@@ -484,6 +512,85 @@
             return imgData;
         });
     }
+    /***************/
+    function makeCornerResizable($element) {
+        const tolerance = 10; // Distance from corner for resizing
+        let isResizing = false;
+        let startWidth, startHeight, startX, startY, corner;
+    
+        $element.on("mousedown touchstart", function (e) {
+            const offset = $element.offset();
+            const mouseX = e.pageX || e.originalEvent.touches[0].pageX;
+            const mouseY = e.pageY || e.originalEvent.touches[0].pageY;
+    
+            const insideTopLeft = mouseX - offset.left <= tolerance && mouseY - offset.top <= tolerance;
+            const insideTopRight =
+                offset.left + $element.outerWidth() - mouseX <= tolerance &&
+                mouseY - offset.top <= tolerance;
+            const insideBottomLeft =
+                mouseX - offset.left <= tolerance &&
+                offset.top + $element.outerHeight() - mouseY <= tolerance;
+            const insideBottomRight =
+                offset.left + $element.outerWidth() - mouseX <= tolerance &&
+                offset.top + $element.outerHeight() - mouseY <= tolerance;
+    
+            if (insideTopLeft || insideTopRight || insideBottomLeft || insideBottomRight) {
+                e.preventDefault();
+                isResizing = true;
+                startWidth = $element.outerWidth();
+                startHeight = $element.outerHeight();
+                startX = mouseX;
+                startY = mouseY;
+    
+                corner = {
+                    topLeft: insideTopLeft,
+                    topRight: insideTopRight,
+                    bottomLeft: insideBottomLeft,
+                    bottomRight: insideBottomRight,
+                };
+    
+                $(document).on("mousemove touchmove", resizeElement);
+                $(document).on("mouseup touchend", stopResizing);
+            }
+        });
+    
+        function resizeElement(e) {
+            if (!isResizing) return;
+    
+            const mouseX = e.pageX || e.originalEvent.touches[0].pageX;
+            const mouseY = e.pageY || e.originalEvent.touches[0].pageY;
+    
+            let newWidth = startWidth;
+            let newHeight = startHeight;
+    
+            if (corner.topLeft) {
+                newWidth = startWidth - (mouseX - startX);
+                newHeight = startHeight - (mouseY - startY);
+            }
+            if (corner.topRight) {
+                newWidth = startWidth + (mouseX - startX);
+                newHeight = startHeight - (mouseY - startY);
+            }
+            if (corner.bottomLeft) {
+                newWidth = startWidth - (mouseX - startX);
+                newHeight = startHeight + (mouseY - startY);
+            }
+            if (corner.bottomRight) {
+                newWidth = startWidth + (mouseX - startX);
+                newHeight = startHeight + (mouseY - startY);
+            }
+    
+            if (newWidth > tolerance) $element.css("width", newWidth + "px");
+            if (newHeight > tolerance) $element.css("height", newHeight + "px");
+        }
+    
+        function stopResizing() {
+            isResizing = false;
+            $(document).off("mousemove touchmove", resizeElement);
+            $(document).off("mouseup touchend", stopResizing);
+        }
+    }
+    
     /***************/
     function setSingleImagePreview($container, imageData, isLoader = false) {
         const $imagePreview = $container.find('.image-preview .preview-wrapper');

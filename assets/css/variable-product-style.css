@@ -352,13 +352,16 @@ html:has(.custom-data-container.active) {
 
 }
 
-.image-canvas.portrait {
-    aspect-ratio: 0.706;
+.image-canvas {
+    aspect-ratio: 0.705;
 }
-
+/* .image-canvas.portrait {
+    aspect-ratio: 0.706;
+} */
+/* 
 .image-canvas.landscape {
     aspect-ratio: 1.25;
-}
+} */
 
 .canvas-container .image-canvas:is(.landscape, .portrait) img {
     width: 100%;
@@ -408,11 +411,34 @@ html:has(.custom-data-container.active) {
     padding: 0 !important;
     width: fit-content !important;
     min-width: 100% !important;
+    position: relative;
 }
 
 .text-box:focus {
     /* border: 1px dashed #000; */
     outline: 1px dashed #2563eb;
+}
+
+.text-box .remove-textbox-button{
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 3px;
+    left: 3px;
+    margin: 0 !important;
+    padding: 0;
+    background-color: transparent !important;
+    border-radius: 50%;
+    border-color: #7f7f7f;
+    color: #7f7f7f !important;
+    font-size: 18px;
+}
+
+.text-box:not(:has(input:focus)) .remove-textbox-button {
+    display: none;
 }
 
 .canvas-controls,
@@ -429,6 +455,15 @@ html:has(.custom-data-container.active) {
 #text-box-controls .input-wrapper {
     position: relative;
 }
+.canvas-controls img,
+#text-box-controls img{
+    width: 20px;
+    height: 20px;
+}
+
+#text-box-controls button{
+    display: flex;
+}
 
 .customize-design-container button.control-button {
     padding: 3px 7px;
@@ -437,7 +472,6 @@ html:has(.custom-data-container.active) {
     color: #343434;
     outline: none !important;
 }
-
 
 .customize-design-container button.control-button:hover,
 .customize-design-container button.control-button:focus {
@@ -511,13 +545,23 @@ html:has(.custom-data-container.active) {
 }
 
 @media (max-width: 768px) {
+    .image-preview img {
+        max-width: 365px;
+        max-height: 365px;
+    }
+
     .canvas-container {
         margin-top: 5px;
     }
 
     .canvas-controls {
         flex-wrap: wrap;
-        gap: 5px 10px;
+        gap: 5px;
+    }
+
+    .text-box-controls {
+        flex-wrap: wrap;
+        gap: 5px;
     }
 }
 

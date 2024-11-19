@@ -137,6 +137,9 @@ add_filter('woocommerce_checkout_create_order_line_item', 'add_custom_data_to_or
 
 function set_custom_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
 {
+    if(wp_is_mobile()){
+        return $thumbnail;
+    }
     $custom_attributes_terms = $cart_item['custom_attributes'] ?? [];
     if (!empty($custom_attributes_terms)) {
         $thumbnail_html = '<div class="cart-item-thumbnail-gallery">';

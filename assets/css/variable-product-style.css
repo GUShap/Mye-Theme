@@ -380,7 +380,7 @@ html:has(.custom-data-container.active) {
     left: 50%;
     transform: translate(-50%, -50%);
     background: #fff;
-    padding: 5px 8px;
+    padding: 18px 8px;
     cursor: move;
     color: #000;
     font-size: 25px;
@@ -394,7 +394,7 @@ html:has(.custom-data-container.active) {
 }
 
 .text-box input {
-    border: none !important;
+    /* border: none !important; */
     outline: none !important;
     background: transparent;
     padding: 0 !important;

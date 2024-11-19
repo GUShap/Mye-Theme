@@ -79,8 +79,6 @@ table.shop_table .variation dt{
     background-color: #DFE3E8;
     border-radius: 6px 6px 0 6px;
     animation: fadeIn 0.2s linear forwards;
-    max-width: 350px;
-    width: 300%;
 }
 
 .custom-item-data-container .content h3{

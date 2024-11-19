@@ -366,7 +366,7 @@ html:has(.custom-data-container.active) {
 @media (max-width: 768px) {
 
     .canvas-wrapper.portrait {
-        height: 315px;
+        height: 275px;
     }
 
     .canvas-wrapper.landscape {

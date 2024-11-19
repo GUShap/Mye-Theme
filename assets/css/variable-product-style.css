@@ -1080,3 +1080,14 @@ body.single-product form details.allergies-container .allergies-disclamier:befor
 body.single-product form details.allergies-container .button-wrapper {
     text-align: center;
 }
+
+/*
+*/
+.single_variation_wrap:has(.added_to_cart){
+    justify-content: center;
+}
+
+.single_variation_wrap:has(.added_to_cart) .single_variation,
+.single_variation_wrap:has(.added_to_cart) .woocommerce-variation-add-to-cart>*:not(.added_to_cart){
+    display: none !important;
+}

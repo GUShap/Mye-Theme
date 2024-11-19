@@ -625,7 +625,7 @@ html:has(.custom-data-container.active) {
 
 @media (max-width:768px) {
     .footing-wrapper {
-        bottom: 50px;
+        bottom: 60px;
     }
 }
 
@@ -689,6 +689,7 @@ html:has(.custom-data-container.active) {
     .customize-design-container .attr-content .gallery-wrapper .gallery-content {
         grid-template-columns: repeat(2, minmax(95px, 1fr));
         max-height: 290px;
+        margin-top: 5px;
     }
 
     .customize-design-container button.control-button {

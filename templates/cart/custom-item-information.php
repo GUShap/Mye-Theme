@@ -9,9 +9,10 @@ if (!defined('ABSPATH')) {
  * 
  * @var array $allergen_list
  * @var array $custom_attributes
+ * @var string $writing_text
  */
 
- $svg_el = '<svg viewBox="0 0 24 24" fill="none">
+$svg_el = '<svg viewBox="0 0 24 24" fill="none">
             <g id="SVGRepo_iconCarrier">
                 <path d="M12 17V11" stroke="#024248" stroke-width="1.5" stroke-linecap="round"></path>
                 <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 11 9)" fill="#024248"></circle>
@@ -46,7 +47,6 @@ if (!defined('ABSPATH')) {
                 </div>
             </div>
         <?php } ?>
-
         <?php if (!empty($allergen_list)) { ?>
             <div class="allergen-list-wrapper">
                 <h3>אלרגנים</h3>
@@ -57,6 +57,12 @@ if (!defined('ABSPATH')) {
                     }
                     ?>
                 </ul>
+            </div>
+        <?php } ?>
+        <?php if (!empty($writing_text)) { ?>
+            <div class="writing-text-wrapper">
+                <h3>כיתוב</h3>
+                <p class="writing-text custom-item-list"><?php echo $writing_text; ?></p>
             </div>
         <?php } ?>
     </div>

@@ -26,7 +26,7 @@ function add_custom_design()
     // $attributes_string = esc_attr(json_encode($custom_attributes));
 
     // Construct the shortcode with JSON encoded attributes and boolean value for enable_custom_text
-    echo do_shortcode('[customize_design custom_attributes="' . implode(',', $custom_attributes) . '" enable_custom_text="' . $enable_custom_text . '"]');
+    echo do_shortcode('[customize_design product_id="' . get_the_ID() . '" custom_attributes="' . implode(',', $custom_attributes) . '" enable_custom_text="' . $enable_custom_text . '"]');
 }
 add_action('woocommerce_after_variations_table', 'add_custom_design', 0, 11);
 
@@ -231,6 +231,15 @@ function set_product_pickup_selection()
     }
 }
 add_action('woocommerce_after_checkout_billing_form', 'set_product_pickup_selection', 11);
+
+function validate_pickup_date()
+{
+    if (empty($_POST['pickup_date'])) {
+        wc_add_notice(__('יש לבחור תאריך איסוף הזמנה', 'woocommerce'), 'error');
+    }
+}
+add_action('woocommerce_checkout_process', 'validate_pickup_date');
+
 /****************************/
 
 /*** ORDER ***/
@@ -254,7 +263,8 @@ function save_custom_fields_value($order, $data)
 
     if ($is_other_recipients) {
         foreach ($form_recipients as $recipient_idx => $recipient_data) {
-           if(empty($recipient_data['name']) || empty($recipient_data['phone'])) continue;
+            if (empty($recipient_data['name']) || empty($recipient_data['phone']))
+                continue;
             $recipients[$recipient_idx + 1] = [
                 'name' => $recipient_data['name'],
                 'email' => $recipient_data['email'],

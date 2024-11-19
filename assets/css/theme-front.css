@@ -79,6 +79,8 @@ table.shop_table .variation dt{
     background-color: #DFE3E8;
     border-radius: 6px 6px 0 6px;
     animation: fadeIn 0.2s linear forwards;
+    max-width: 350px;
+    width: 300%;
 }
 
 .custom-item-data-container .content h3{
@@ -90,6 +92,11 @@ table.shop_table .variation dt{
     margin-left: 5px !important;
 }
 
+@media screen and (max-width: 768px) {
+    .custom-item-data-container.active .content{
+        max-width: 320px;
+    }
+}
 
 @keyframes fadeIn {
     from {

@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
  * Customize Design Template
  * 
  * @param array $attributes
+ * @param bool $add_chocolate_writing
  */
 ?>
 <div class="customize-design-container">
@@ -41,6 +42,12 @@ if (!defined('ABSPATH')) {
                     include $single_attribute_template_path;
                 }
             } ?>
+            <?php if ($add_chocolate_writing) {
+                $chocolate_writing_template_path = HE_CHILD_THEME_DIR . 'templates/product/chocolate-writing.php';
+                if (file_exists($chocolate_writing_template_path)) {
+                    include $chocolate_writing_template_path;
+                }
+            } ?>
         </div>
         <div class="totals-summary">
             <div class="totals-summary-heading">
@@ -55,6 +62,14 @@ if (!defined('ABSPATH')) {
                             <p><?php echo $title ?></p>
                         </div>
                         <div class="attribute-content"></div>
+                    </div>
+                <?php } ?>
+                <?php if ($add_chocolate_writing) { ?>
+                    <div class="attribute-line-wrapper" data-id="writing">
+                        <div class="attribute-title">
+                            <p>כיתוב על הקינוח</p>
+                        </div>
+                        <p class="attribute-content"></p>
                     </div>
                 <?php } ?>
             </div>

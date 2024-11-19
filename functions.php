@@ -42,7 +42,8 @@ function set_item_custom_information($cart_item)
 {
     $allergen_list = $cart_item['allergen_list'] ?? [];
     $custom_attributes = $cart_item['custom_attributes'] ?? [];
-    if (empty($allergen_list) && empty($custom_attributes))
+    $writing_text = $cart_item['cake_writing'] ?? '';
+    if (empty($allergen_list) && empty($custom_attributes) && empty($writing_text))
         return;
     $custom_item_information_template_path = HE_CHILD_THEME_DIR . '/templates/cart/custom-item-information.php';
     if (file_exists($custom_item_information_template_path)) {

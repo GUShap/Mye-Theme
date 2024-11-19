@@ -106,7 +106,7 @@ html:has(.custom-data-container.active) {
         font-size: 20px;
     }
 
-    .customize-design-container .content-wrapper{
+    .customize-design-container .content-wrapper {
         height: 495px;
     }
 }
@@ -205,6 +205,7 @@ html:has(.custom-data-container.active) {
 
 .customize-design-container .attr-content .source-select-wrapper {
     position: absolute;
+    top: 5px;
     left: 0;
     display: flex;
     justify-content: space-between;
@@ -336,65 +337,53 @@ html:has(.custom-data-container.active) {
     }
 }
 
-.canvas-wrapper {
+.canvas-wrapper:has(img.loaded) {
     position: relative;
-    width: 100%;
-    height: 335px;
+    /* width: 100%; */
+}
+
+.canvas-wrapper.portrait {
+    height: 455px;
+}
+
+.canvas-wrapper.landscape {
+    height: 355px;
 }
 
 .controls-wrapper {
     z-index: 1;
 }
 
-.image-canvas {
-    position: relative;
-    height: 470px;
-
-}
-
-.image-canvas {
-    aspect-ratio: 0.705;
-}
-/* .image-canvas.portrait {
-    aspect-ratio: 0.706;
-} */
-/* 
-.image-canvas.landscape {
-    aspect-ratio: 1.25;
-} */
-
-.canvas-container .image-canvas:is(.landscape, .portrait) img {
+.canvas-wrapper img.loaded {
     width: 100%;
-    height: 100%;
+    height: 100% !important;
     inset: 0;
     object-fit: contain;
-    position: absolute;
+    /* position: absolute; */
 }
 
 
 @media (max-width: 768px) {
-    
-    .image-canvas.portrait {
-        height: 310px;
+
+    .canvas-wrapper.portrait {
+        height: 315px;
     }
-    .image-canvas.landscape{
-        height: 220px;
+
+    .canvas-wrapper.landscape {
+        height: 260px;
     }
 }
 
 .text-box {
     position: absolute;
-    top: 330px;
-    width: 100%;
-    /* left: 50%; */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: #fff;
     padding: 5px 8px;
     cursor: move;
     color: #000;
-    font-weight: normal;
-    -webkit-user-modify: read-write;
     font-size: 25px;
-    resize: both;
 }
 
 @media (max-width: 768px) {
@@ -419,7 +408,7 @@ html:has(.custom-data-container.active) {
     outline: 1px dashed #2563eb;
 }
 
-.text-box .remove-textbox-button{
+.text-box .remove-textbox-button {
     position: absolute;
     height: 22px;
     width: 22px;
@@ -437,7 +426,7 @@ html:has(.custom-data-container.active) {
     font-size: 18px;
 }
 
-.text-box:not(:has(input:focus)) .remove-textbox-button {
+.text-box:not(:has(input:focus, p)) .remove-textbox-button {
     display: none;
 }
 
@@ -455,13 +444,14 @@ html:has(.custom-data-container.active) {
 #text-box-controls .input-wrapper {
     position: relative;
 }
+
 .canvas-controls img,
-#text-box-controls img{
+#text-box-controls img {
     width: 20px;
     height: 20px;
 }
 
-#text-box-controls button{
+#text-box-controls button {
     display: flex;
 }
 
@@ -605,7 +595,7 @@ html:has(.custom-data-container.active) {
     overflow-y: auto;
 }
 
-.attribute-line-wrapper .attribute-content {
+.attribute-line-wrapper:not([data-id="writing"]) .attribute-content {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
@@ -786,6 +776,39 @@ html:has(.custom-data-container.active) {
     }
 }
 
+.loader-2 {
+    display: block;
+    --s: 28px;
+    height: var(--s);
+    aspect-ratio: 2.5;
+    --_g: #F095B1 90%, transparent;
+    --_g0: no-repeat radial-gradient(farthest-side, var(--_g));
+    --_g1: no-repeat radial-gradient(farthest-side at top, var(--_g));
+    --_g2: no-repeat radial-gradient(farthest-side at bottom, var(--_g));
+    background: var(--_g0), var(--_g1), var(--_g2), var(--_g0), var(--_g1), var(--_g2);
+    background-size: 20% 50%, 20% 25%, 20% 25%;
+    animation: l45 1s infinite;
+}
+
+@keyframes l45 {
+    0% {
+        background-position: calc(0*100%/3) 50%, calc(1*100%/3) calc(50% + calc(var(--s)/8)), calc(1*100%/3) calc(50% - calc(var(--s)/8)), calc(3*100%/3) 50%, calc(2*100%/3) calc(50% + calc(var(--s)/8)), calc(2*100%/3) calc(50% - calc(var(--s)/8))
+    }
+
+    33% {
+        background-position: calc(0*100%/3) 50%, calc(1*100%/3) 100%, calc(1*100%/3) 0, calc(3*100%/3) 50%, calc(2*100%/3) 100%, calc(2*100%/3) 0
+    }
+
+    66% {
+        background-position: calc(1*100%/3) 50%, calc(0*100%/3) 100%, calc(0*100%/3) 0, calc(2*100%/3) 50%, calc(3*100%/3) 100%, calc(3*100%/3) 0
+    }
+
+    90%,
+    100% {
+        background-position: calc(1*100%/3) 50%, calc(0*100%/3) calc(50% + calc(var(--s)/8)), calc(0*100%/3) calc(50% - calc(var(--s)/8)), calc(2*100%/3) 50%, calc(3*100%/3) calc(50% + calc(var(--s)/8)), calc(3*100%/3) calc(50% - calc(var(--s)/8))
+    }
+}
+
 /* ***** */
 
 .pretty-product-gallery img {
@@ -825,6 +848,10 @@ html:has(.custom-data-container.active) {
 
 .pretty-product-gallery .thumbnail-arrow.thumbnail-next-arrow {
     left: calc(100% + 5px);
+}
+
+.pretty-product-gallery .slider-nav .slick-slide{
+    margin: auto;
 }
 
 .pretty-product-gallery .slider-nav .slick-slide:not(.slick-center) {

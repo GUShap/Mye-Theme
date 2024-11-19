@@ -176,7 +176,8 @@ if (!defined('ABSPATH'))
                         </div>
                         <div class="input-wrapper type-color">
                             <label for="text-color">
-                                <button type="button" class="control-button" id="text-color-button" data-val-selector="#text-color">
+                                <button type="button" class="control-button" id="text-color-button"
+                                    data-val-selector="#text-color">
                                     <?php echo wp_get_attachment_image($text_color_svg, 'full', true); ?>
                                 </button>
                             </label>
@@ -184,7 +185,8 @@ if (!defined('ABSPATH'))
                         </div>
                         <div class="input-wrapper type-color">
                             <label for="bg-color">
-                                <button type="button" class="control-button" id="bg-color-button"data-val-selector="#bg-color">
+                                <button type="button" class="control-button" id="bg-color-button"
+                                    data-val-selector="#bg-color">
                                     <?php echo wp_get_attachment_image($bg_color_svg, 'full', true); ?>
                                 </button>
                             </label>
@@ -192,9 +194,9 @@ if (!defined('ABSPATH'))
                         </div>
                     </div>
                 </div>
-                <!-- <div class="canvas-wrapper"> -->
-                <div class="image-canvas"><img src="" alt="custom preview"></div>
-                <!-- </div> -->
+                <div class="canvas-wrapper">
+                <img src="" alt="custom preview">
+                </div>
             </div>
         <?php } ?>
         <div class="step image-preview<?php echo $multiple_selection ? ' multiple' : '' ?>">

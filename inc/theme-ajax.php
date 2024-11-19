@@ -4,47 +4,11 @@ if (!defined('ABSPATH')) {
   exit;
 }
 
-function get_cake_themes_callback()
-{
-  $taxonomy = 'pa_' . sanitize_title('cake_theme');
-  $theme_options = get_terms([
-    'taxonomy' => $taxonomy,
-    'hide_empty' => false,
-  ]);
-  $data = [];
-
-  foreach ($theme_options as $idx => $option) {
-    $theme_images = get_field('theme_images', $option);
-    $search_terms = make_array_shallow(get_field('search_terms', $option));
-    $search_terms[] = $option->name;
-
-    if (!empty($theme_images)) {
-      $images = [];
-
-      foreach ($theme_images as $inner_idx => $image_id) {
-        $images[$inner_idx] = wp_get_attachment_image($image_id, 'full');
-      }
-
-      $data[] = [
-        'name' => $option->name,
-        'slug' => $option->slug,
-        'search_term' => $search_terms,
-        'images' => $images
-      ];
-    }
-  }
-  // You can do further processing on $theme_options if needed
-
-  // Return the data as JSON
-  wp_send_json($data);
-}
-// Hook for the AJAX action in WordPress
-add_action('wp_ajax_get_cake_themes', 'get_cake_themes_callback');
-add_action('wp_ajax_nopriv_get_cake_themes', 'get_cake_themes_callback');
 function add_attributes_to_item()
 {
   $response = [];
   $item_data = $_POST['item_data'];
+  $cake_writing_chars = $_POST['cake_writing_chars'];
   $added_price = 0;
   foreach ($item_data as $attr_id => $options) {
     $attr_price = get_field('attribute_price', $attr_id);
@@ -58,6 +22,14 @@ function add_attributes_to_item()
     $is_price_per_options
       ? $added_price += $attr_price * count($options)
       : $added_price += $attr_price;
+  }
+
+  if ($cake_writing_chars) {
+    $letters_threshold = get_field('letters_threshold', 'options');
+    $price = get_field('price_above_threshold', 'options');
+    if ($cake_writing_chars > $letters_threshold) {
+      $added_price += $price;
+    }
   }
 
   $response['status'] = 'success';
@@ -116,7 +88,7 @@ function woocommerce_add_to_cart_variable_rc_callback()
   $allergen_list = $_POST['allergen_list'] ?? [];
   $added_price = $_POST['added_price'] ?? 0;
   $custom_attributes_raw = $_POST['items_data'] ?? [];
-
+  $cake_writing = $_POST['writing'] ?? '';
   $custom_attributes = [];
   if (!empty($custom_attributes_raw)) {
     foreach ($custom_attributes_raw as $attr_key => $inner_array) {
@@ -139,15 +111,18 @@ function woocommerce_add_to_cart_variable_rc_callback()
       }
     }
   }
-  // return;
-  if (!empty($allergen_list))
+  if (!empty($allergen_list)) {
     $cart_item_data['allergen_list'] = $allergen_list;
-
+  }
   if (!empty($custom_attributes)) {
     $cart_item_data['custom_attributes'] = $custom_attributes;
   }
-  if (!empty($added_price))
+  if (!empty($added_price)) {
     $cart_item_data['added_price'] = $added_price;
+  }
+  if(!empty($cake_writing)) {
+    $cart_item_data['cake_writing'] = $cake_writing;
+  }
 
   $variation = [];
 

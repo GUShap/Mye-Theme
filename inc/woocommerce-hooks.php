@@ -142,7 +142,9 @@ function set_custom_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
         $thumbnail_html = '<div class="cart-item-thumbnail-gallery">';
         foreach ($custom_attributes_terms as $term_value_data) {
             foreach ($term_value_data as $key => $value_set) {
-                $thumbnail_html .= '<img src="' . $value_set['image_src'] . '" alt="custom-image">';
+                if(!empty($value_set['image_src'])){
+                    $thumbnail_html .= '<img src="' . $value_set['image_src'] . '" alt="custom-image">';
+                }
             }
         }
         $thumbnail_html .= '</div>';

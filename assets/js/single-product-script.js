@@ -521,7 +521,7 @@ async function generateCanvasImage($element) {
                 width: $(this).width(),
             });
         $textInput.replaceWith($p);
-        $deleteButton.remove();
+        $deleteButton.hide();
     });
 
     // Use html2canvas to capture the canvas and text-box elements within the canvas borders
@@ -544,7 +544,7 @@ async function generateCanvasImage($element) {
                 wordSpacing: $p.css('word-spacing'),
             });
             $p.replaceWith($input);
-            $(this).append('<button type="button" class="remove-textbox-button">&#215;</button>');
+            $(this).find('.remove-textbox-button').show();
         });
         return imgData;
     });

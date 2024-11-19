@@ -687,7 +687,8 @@ html:has(.custom-data-container.active) {
     }
 
     .customize-design-container .attr-content .gallery-wrapper .gallery-content {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(95px, 1fr));
+        max-height: 290px;
     }
 
     .customize-design-container button.control-button {

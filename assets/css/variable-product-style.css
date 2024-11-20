@@ -377,13 +377,16 @@ html:has(.custom-data-container.active) {
 .text-box {
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    padding: 18px 8px;
+    left: 0 !important;
+    /* left: 50%;
+    transform: translate(-50%, -50%); */
+    /* background: #fff; */
+    /* padding: 18px 8px; */
     cursor: move;
     color: #000;
     font-size: 25px;
+    width: 100%;
+    height: fit-content;
 }
 
 @media (max-width: 768px) {
@@ -446,7 +449,8 @@ html:has(.custom-data-container.active) {
 }
 
 .canvas-controls img,
-#text-box-controls img {
+#text-box-controls img, 
+#text-box-controls svg {
     width: 20px;
     height: 20px;
 }
@@ -469,6 +473,10 @@ html:has(.custom-data-container.active) {
     color: #fff;
 }
 
+#text-box-controls .input-wrapper #text-color-button{
+    height: 28px;
+}
+
 #text-box-controls .input-wrapper input,
 #text-box-controls .input-wrapper select {
     position: absolute;
@@ -483,8 +491,35 @@ html:has(.custom-data-container.active) {
 
 
 #text-box-controls .input-wrapper:is(.type-number):not(.active) input,
-#text-box-controls .input-wrapper:is(.type-select):not(.active) select {
+#text-box-controls .input-wrapper:not(.active) .align-options-wrapper,
+#text-box-controls .input-wrapper:not(.active) select,
+#text-box-controls .input-wrapper.align-wrapper select{
     display: none;
+}
+
+#text-box-controls .align-options-wrapper{
+    display: flex;
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#text-box-controls .align-wrapper button{
+    margin: 0;
+    padding: 0 5px;
+    height: 28px;
+    align-items: center;
+    background-color: #fff;
+    border-color: #000;
+    transition: all 0.3s linear;
+}
+
+#text-box-controls .align-wrapper button:hover,
+#text-box-controls .align-wrapper button:hover svg path{
+    background-color: #000;
+    color: #fff;
+    stroke: #fff;
 }
 
 .customize-design-container .attribute-wrapper:has(.canvas-container:not(.active)) .save-image-button,

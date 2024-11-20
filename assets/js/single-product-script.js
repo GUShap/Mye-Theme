@@ -283,10 +283,10 @@ function setImageUpload() {
     });
 }
 function setCanvasDisplay(fileOrUrl, $canvas) {
-    // const ctx = $canvas[0].getContext('2d', { willReadFrequently: true });
+    let canvasRotation = 0;
+
     $canvas.removeClass('portrait').removeClass('landscape');
     $canvas.find('img').removeClass('loaded');
-    let canvasRotation = 0;
 
     const img = new Image();
     if (fileOrUrl instanceof File) {
@@ -338,34 +338,46 @@ function addTextBox($canvas) {
     const $canvasContainer = $canvas.parent(); // Assuming the canvas has a parent container
 
     // Create a new text box element
-    const $textInput = $('<input type="text" placeholder="טקסט אישי..." />');
+    const $textInput = $('<textarea rows="2" placeholder="טקסט אישי..." />');
     const $deleteButton = $('<button type="button" class="remove-textbox-button">&#215;</button>');
     const $textBox = $(`<div class="text-box" cancelable="false"></div>`);
+
     $textBox.append($textInput, $deleteButton);
 
     // Append the text box to the canvas container
     $canvas.append($textBox);
     // Make the text box draggable
     $textBox.draggable({
+        cancel: "text",
         containment: $canvasContainer,
+        axis: 'y',
         start: function () {
+            $(this).find('textarea').focus();
             $canvasContainer.find('#text-box-controls .input-wrapper').removeClass('active');
         },
         drag: function () {
             $(this).css('transform', 'translate(0, 0)');
         },
         stop: function () {
+            const boxRect = this.getBoundingClientRect();
+            const canvasRect = $canvas.get(0).getBoundingClientRect();
+            if (boxRect.top <= canvasRect.top) {
+                $(this).css('top', 0);
+            }
+            if (boxRect.bottom >= canvasRect.bottom) {
+                $(this).css('bottom', 0);
+            }
             showTextBoxControls($(this));
-            $(this).find('input').focus();
+            $(this).find('textarea').focus();
         }
     });
     // Attach event to handle text box selection
-    $textBox.find('input').on('focus', function (e) {
+    $textInput.on('focus', function (e) {
         // e.stopPropagation(); // Prevent event bubbling
         showTextBoxControls($textBox); // Pass the selected text box for control
     });
 
-    $textBox.find('input').on('input', function () {
+    $textInput.on('input', function () {
 
     });
     // Deselect text box when clicking outside
@@ -373,14 +385,13 @@ function addTextBox($canvas) {
         hideTextBoxControls(); // Hide controls when clicking outside of the text box
     });
 
-    $textBox.find('input').focus();
+    $textInput.focus();
 
     $textBox.on('click', function (e) {
         e.stopPropagation();
         $(this).find('input').focus();
     });
 
-    $textBox.outerWidth($canvas.width() * 0.75);
 
     $deleteButton.on('click', function () {
         $textBox.remove();
@@ -392,30 +403,53 @@ function addTextBox($canvas) {
 // Function to show controls for the selected text box
 function showTextBoxControls($textBox) {
     const $controls = $('#text-box-controls'); // Assuming a control panel exists
-    const $controlButtons = $controls.find('.input-wrapper button');
+    const $controlButtons = $controls.find('.input-wrapper label button');
+    const $textInput = $textBox.find('textarea');
+    //
+    const $fontFamilyBtn = $controls.find('#font-family');
+    const $fontSizeBtn = $controls.find('#font-size');
+    const $fontWeightBtn = $controls.find('#font-weight');
+    const $textColorBtn = $controls.find('#text-color');
+    const $bgColorBtn = $controls.find('#bg-color');
+    const $alignTextBtns = $controls.find('.align-options-wrapper button');
+    const $textAlignSelect = $controls.find('#text-align');
+
     // Display the control panel
     $controls.show();
 
     // Update controls with the current styles of the selected text box
-    $controls.find('#font-family').val($textBox.find('input').css('font-family'));
-    $controls.find('#font-size').val(parseInt($textBox.find('input').css('font-size')));
-    $controls.find('#font-weight').val($textBox.find('input').css('font-weight'));
-    $controls.find('#text-color').val(rgbToHex($textBox.find('input').css('color')));
-    $controls.find('#bg-color').val(rgbToHex($textBox.css('background-color')));
+    $fontFamilyBtn.val($textInput.css('font-family'));
+    $fontSizeBtn.val(parseInt($textInput.css('font-size')));
+    $fontWeightBtn.val($textInput.css('font-weight'));
+    $textColorBtn.val(rgbToHex($textInput.css('color')));
+
+    $textAlignSelect.off('change').on('change', function () {
+        const $label = $textAlignSelect.siblings('label');
+        const $selectedSvg = $alignTextBtns.filter(`[data-option="${$(this).val()}"]`).find('svg');
+        $textInput.css('text-align', $(this).val());
+        $label.find('svg').replaceWith($selectedSvg.clone());
+    });
+
+    $alignTextBtns.off('click').on('click', function () {
+        const $selectedOption = $textAlignSelect.find(`option[value="${$(this).data('option')}"]`);
+        $selectedOption.prop('selected', true).trigger('change');
+        $(this).closest('.input-wrapper').removeClass('active');
+    });
+
 
     // Attach change events to the control inputs for the specific text box
-    $controls.find('#font-family').off('change').on('change', function () {
-        $textBox.find('input').css('font-family', $(this).val());
+    $fontFamilyBtn.off('change').on('change', function () {
+        $textInput.css('font-family', $(this).val());
         $(this).siblings('label').find('button').click();
     });
-    $controls.find('#font-size').off('input').on('input', function () {
-        $textBox.find('input').css('font-size', $(this).val() + 'px');
+    $fontSizeBtn.off('input').on('input', function () {
+        $textInput.css('font-size', $(this).val() + 'px');
     });
-    $controls.find('#font-weight').off('input').on('input', function () {
-        $textBox.find('input').css('font-weight', $(this).val());
+    $fontWeightBtn.off('input').on('input', function () {
+        $textInput.css('font-weight', $(this).val());
     });
-    $controls.find('#text-color').off('change').on('change', function () {
-        $textBox.find('input').css('color', $(this).val());
+    $textColorBtn.off('change').on('change', function () {
+        $textInput.css('color', $(this).val());
     });
     $controls.find('#bg-color').off('change').on('change', function () {
         $textBox.css('background-color', $(this).val());
@@ -457,7 +491,7 @@ function setColorPicker() {
             hideOnPaletteClick: true,
             onInput: function () {
                 $(selector).val(this.toString()).trigger('change');
-            }
+            },
         }
     }
     $('#bg-color-button, #text-color-button').each(function () {
@@ -503,7 +537,7 @@ function setImageSelection($attribute) {
 async function generateCanvasImage($element) {
     const $textBoxes = $element.find('.text-box');
     $textBoxes.each(function () {
-        const $textInput = $(this).find('input');
+        const $textInput = $(this).find('textarea');
         const $deleteButton = $(this).find('.remove-textbox-button');
         const $p = $('<p></p>')
             .text($textInput.val())
@@ -530,7 +564,7 @@ async function generateCanvasImage($element) {
         const imgData = canvas.toDataURL("image/png");
         $textBoxes.each(function () {
             const $p = $(this).find('p');
-            const $input = $('<input type="text" />').val($p.text());
+            const $input = $('<textarea />').val($p.text());
             $input.css({
                 color: $p.css('color'),
                 fontFamily: $p.css('font-family'),

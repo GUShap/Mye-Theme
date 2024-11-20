@@ -91,8 +91,10 @@ if (!defined('ABSPATH'))
             $font_family_svg = get_field('font_family_icon', 'option');
             $font_size_svg = get_field('font_size_icon', 'option');
             $font_weight_svg = get_field('font_weight_icon', 'option');
+            $align_left_svg = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_iconCarrier"><g id="Edit / Text_Align_Left"> <path id="Vector" d="M4 18H14M4 14H20M4 10H14M4 6H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>';
+            $align_right_svg = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"<g id="SVGRepo_iconCarrier"> <g id="Edit / Text_Align_Right"> <path id="Vector" d="M20 18H10M20 14H4M20 10H10M20 6H4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>';
+            $align_center_svg = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_iconCarrier"> <g id="Edit / Text_Align_Center"> <path id="Vector" d="M17 18H7M20 14H4M17 10H7M20 6H4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>';
             $text_color_svg = get_field('text_color_icon', 'option');
-            $bg_color_svg = get_field('bg_color_icon', 'option');
             ?>
             <div class="step canvas-container">
                 <div class="controls-wrapper">
@@ -174,28 +176,34 @@ if (!defined('ABSPATH'))
                             </label>
                             <input type="range" id="font-weight" value="300" min="100" max="900">
                         </div>
+                        <div class="input-wrapper type-select align-wrapper">
+                            <select id="text-align">
+                                <option value="left">שמאל</option>
+                                <option value="center">מרכז</option>
+                                <option value="right" selected>ימין</option>
+                            </select>
+                            <label for="text-align"><button><?php echo $align_right_svg; ?></button></label>
+                            <div class="align-options-wrapper">
+                                <button type="button" class="align-button right"
+                                data-option="right"><?php echo $align_right_svg; ?></button>
+                                <button type="button" class="align-button center"
+                                data-option="center"><?php echo $align_center_svg; ?></button>
+                                <button type="button" class="align-button left"
+                                    data-option="left"><?php echo $align_left_svg; ?></button>
+                            </div>
+                        </div>
                         <div class="input-wrapper type-color">
                             <label for="text-color">
                                 <button type="button" class="control-button" id="text-color-button"
                                     data-val-selector="#text-color">
-                                    <?php echo wp_get_attachment_image($text_color_svg, 'full', true); ?>
                                 </button>
                             </label>
                             <input type="hidden" id="text-color" value="#000000">
                         </div>
-                        <div class="input-wrapper type-color">
-                            <label for="bg-color">
-                                <button type="button" class="control-button" id="bg-color-button"
-                                    data-val-selector="#bg-color">
-                                    <?php echo wp_get_attachment_image($bg_color_svg, 'full', true); ?>
-                                </button>
-                            </label>
-                            <input type="hidden" name="" id="bg-color" value="#ffffff">
-                        </div>
                     </div>
                 </div>
                 <div class="canvas-wrapper">
-                <img src="" alt="custom preview">
+                    <img src="" alt="custom preview">
                 </div>
             </div>
         <?php } ?>

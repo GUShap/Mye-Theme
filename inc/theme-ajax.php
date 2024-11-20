@@ -38,7 +38,6 @@ function add_attributes_to_item()
   $main_image_id = '';
   $fallback_image_url = '';
   $gallery_image_ids = [];
-
   $term_counter = 0;
 
   foreach ($item_data as $attr_id => $image_options) {
@@ -46,8 +45,15 @@ function add_attributes_to_item()
       $image_src = $term_data['image_src'];
       $image_id = attachment_url_to_postid($image_src) ?? '';
       if ($term_counter === 0) {
-        $term_id == 'custom_image' ? $fallback_image_url = $image_src : $main_image_id = $image_id;
-        WC()->session->set('custom_image', $image_src);
+        switch ($term_id) {
+          case 'custom_image':
+            $fallback_image_url = $image_src;
+            WC()->session->set('custom_image', $image_src);
+            continue 2;
+          default:
+            $main_image_id = $image_id;
+            break;
+        }
       } else {
         if ($term_id == 'custom_image') {
           $fallback_image_url = $image_src;
@@ -56,7 +62,6 @@ function add_attributes_to_item()
           WC()->session->set('custom_image', $image_src);
           continue;
         }
-        ;
         $gallery_image_ids[] = $image_id;
       }
       $term_counter++;
@@ -92,7 +97,6 @@ function woocommerce_add_to_cart_variable_rc_callback()
   $custom_attributes = [];
   if (!empty($custom_attributes_raw)) {
     foreach ($custom_attributes_raw as $attr_key => $inner_array) {
-
       foreach ($inner_array as $option_key_raw => $values) {
         if ($option_key_raw == 'custom_image') {
           $base_64_file = WC()->session->get('custom_image');
@@ -120,7 +124,7 @@ function woocommerce_add_to_cart_variable_rc_callback()
   if (!empty($added_price)) {
     $cart_item_data['added_price'] = $added_price;
   }
-  if(!empty($cake_writing)) {
+  if (!empty($cake_writing)) {
     $cart_item_data['cake_writing'] = $cake_writing;
   }
 

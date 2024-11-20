@@ -166,10 +166,13 @@ add_filter('woocommerce_cart_item_permalink', '__return_false');
 
 function add_custom_data_info_checkout($quantity, $cart_item, $cart_item_key)
 {
+    // dd($cart_item);
     ob_start();
     set_item_custom_information($cart_item);
     $custom_data_info = ob_get_clean();
-    return "$quantity$custom_data_info";
+    // echo $custom_data_info;
+    echo "$quantity$custom_data_info";
+    return $quantity;
 }
 add_filter('woocommerce_checkout_cart_item_quantity', 'add_custom_data_info_checkout', 10, 3);
 

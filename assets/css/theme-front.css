@@ -83,16 +83,27 @@ table.shop_table .variation dt{
 
 .custom-item-data-container .content h3{
     font-size: 16px;
-    margin: 0 0 5px;
+    margin: 0 0 5px !important;
+}
+
+.custom-item-data-container .content ul{
+    padding: 0 0 0 3px;
 }
 
 .custom-item-data-container .content ul li::marker{
     margin-left: 5px !important;
 }
 
+.custom-item-data-container .content .writing-text{
+    width: 14ch;
+}
+
 @media screen and (max-width: 768px) {
     .custom-item-data-container.active .content{
-        max-width: 320px;
+        width: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: start;
     }
 }
 

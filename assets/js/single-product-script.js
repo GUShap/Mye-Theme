@@ -580,15 +580,7 @@ async function generateCanvasImage($element) {
             $p.replaceWith($input);
             $(this).find('.remove-textbox-button').show();
         });
-
-        const byteCharacters = atob(imgData.split(',')[1]);  // Decode Base64 string
-        const byteArrays = [];
-        
-        for (let offset = 0; offset < byteCharacters.length; offset++) {
-            byteArrays.push(byteCharacters.charCodeAt(offset));
-        }
-        const blob = new Blob([new Uint8Array(byteArrays)], { type: 'image/png' });  // Create a Blob object
-        return URL.createObjectURL(blob)
+        return imgData;
     });
 }
 /***************/

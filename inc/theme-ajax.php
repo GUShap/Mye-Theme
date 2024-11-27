@@ -48,7 +48,6 @@ function add_attributes_to_item()
         switch ($term_id) {
           case 'custom_image':
             $fallback_image_url = $image_src;
-            WC()->session->set('custom_image', $image_src);
             continue 2;
           default:
             $main_image_id = $image_id;
@@ -99,13 +98,11 @@ function woocommerce_add_to_cart_variable_rc_callback()
     foreach ($custom_attributes_raw as $attr_key => $inner_array) {
       foreach ($inner_array as $option_key_raw => $values) {
         if ($option_key_raw == 'custom_image') {
-          $base_64_file = WC()->session->get('custom_image');
-          $custom_image_id = save_user_image_as_file($base_64_file);
+          $custom_image_id = save_user_image_as_file( $values['image_src']);
           if ($custom_image_id) {
             $values['image_src'] = wp_get_attachment_url($custom_image_id);
             wp_schedule_single_event(time() + 3 * WEEK_IN_SECONDS, 'delete_user_custom_image', array($custom_image_id));
           }
-          WC()->session->set('custom_image', '');
         }
         $option_key = $option_key_raw == 'custom_image'
           ? 'custom_image'

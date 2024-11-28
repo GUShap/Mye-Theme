@@ -77,22 +77,6 @@ function set_custom_variation_attr_list($cart_item)
 	echo $variation_info;
 }
 /************/
-// Add a checkbox column to the terms list table for all product attribute taxonomies
-function add_custom_checkbox_column_to_terms_list($columns)
-{
-	$columns['custom_checkbox'] = __('Custom Checkbox', 'your-textdomain');
-	return $columns;
-}
-
-// Display the checkbox value in the terms list table
-function display_custom_checkbox_column_in_terms_list($content, $column_name, $term_id)
-{
-	if ('custom_checkbox' === $column_name) {
-		$checked = get_term_meta($term_id, 'custom_checkbox', true);
-		$content = $checked ? __('Yes', 'your-textdomain') : __('No', 'your-textdomain');
-	}
-	return $content;
-}
 
 // Automatically apply the custom checkbox column to all WooCommerce product attribute taxonomies
 function apply_custom_checkbox_to_taxonomies_list()
@@ -113,42 +97,41 @@ function apply_custom_checkbox_to_taxonomies_list()
 add_action('init', 'apply_custom_checkbox_to_taxonomies_list');
 
 /******************************/
-add_action('template_redirect', function () {
-	return;
-	$product_id = 1672; // Your product ID
-	$product = wc_get_product($product_id);
-	$variations = $product->get_children();
-	foreach ($variations as $variation_id) {
-		$variation_price = 0;
-		$variation = wc_get_product($variation_id);  // Get variation object
-		$attributes = $variation->get_attributes();
-		foreach ($attributes as $attr_slug => $attr_val) {
-			if (empty($attr_val)) {
-				wp_delete_post($variation_id, true);
-				continue 1;
-			}
-			switch ($attr_slug) {
-				case 'pa_mini-cupcakes-quantity':
-					if ($attr_val == '24')
-						$variation_price += 270;
-					if ($attr_val == '40')
-						$variation_price += 300;
-					break;
-				case 'pa_gluten':
-					if ($attr_val == 'true')
-						$variation_price += 30;
-					break;
-				case 'pa_vegan':
-					if ($attr_val == 'true')
-						$variation_price += 20;
-					break;
-				case 'pa_chocolate_ganach':
-					if ($attr_val == 'true')
-						$variation_price += 35;
-					break;
-			}
-		}
-		update_post_meta($variation_id, '_regular_price', $variation_price);
-
-	}
-});
+// add_action('template_redirect', function () {
+// 	return;
+// 	$product_id = 1672; // Your product ID
+// 	$product = wc_get_product($product_id);
+// 	$variations = $product->get_children();
+// 	foreach ($variations as $variation_id) {
+// 		$variation_price = 0;
+// 		$variation = wc_get_product($variation_id);  // Get variation object
+// 		$attributes = $variation->get_attributes();
+// 		foreach ($attributes as $attr_slug => $attr_val) {
+// 			if (empty($attr_val)) {
+// 				wp_delete_post($variation_id, true);
+// 				continue 1;
+// 			}
+// 			switch ($attr_slug) {
+// 				case 'pa_mini-cupcakes-quantity':
+// 					if ($attr_val == '24')
+// 						$variation_price += 270;
+// 					if ($attr_val == '40')
+// 						$variation_price += 300;
+// 					break;
+// 				case 'pa_gluten':
+// 					if ($attr_val == 'true')
+// 						$variation_price += 30;
+// 					break;
+// 				case 'pa_vegan':
+// 					if ($attr_val == 'true')
+// 						$variation_price += 20;
+// 					break;
+// 				case 'pa_chocolate_ganach':
+// 					if ($attr_val == 'true')
+// 						$variation_price += 35;
+// 					break;
+// 			}
+// 		}
+// 		update_post_meta($variation_id, '_regular_price', $variation_price);
+// 	}
+// });

@@ -68,6 +68,7 @@ function custom_variable_product_price($price, $product)
 add_filter('woocommerce_variable_sale_price_html', 'custom_variable_product_price', 10, 2);
 add_filter('woocommerce_variable_price_html', 'custom_variable_product_price', 10, 2);
 
+
 // Add attribute label as data-attribute-label to the variation select element
 
 function add_label_as_data_attribute_to_variation_select($html, $args)

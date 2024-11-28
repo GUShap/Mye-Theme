@@ -5,8 +5,8 @@ if (typeof $ == 'undefined') {
 let selectedVariation = null;
 let itemsData = {};
 
-// // 
 $(window).on('load', function () {
+    setVariationsAttributes();
     setCustomDataToggle();
     setCustomDesign();
     setAllergensList();
@@ -18,6 +18,39 @@ $(window).on('load', function () {
     setPriceUpdate();
 });
 
+function setVariationsAttributes() {
+    const $variationsTable = $('table.variations');
+    const $booleanAttributes = $variationsTable.find('.boolean-option');
+    const $multipleOptionsAttributes = $variationsTable.find('.multiple');
+
+    $booleanAttributes.each(function () {
+        const $checkbox = $(this).find('input[type="checkbox"]');
+        const $select = $(this).find('select');
+
+        $checkbox.on('change', function () {
+            const value = $(this).prop('checked') ? 'true' : 'false';
+            $select.val(value).trigger('change');
+        });
+
+        if (!$select.val()) $select.val('false').trigger('change');
+    });
+
+    $multipleOptionsAttributes.each(function () {
+        const $checkboxes = $(this).find('input[type="checkbox"]');
+        const $select = $(this).find('select');
+
+        $checkboxes.on('change', function () {
+            const isAnyChecked = $checkboxes.filter(':checked').length ? true : false;
+            const value = $(this).val();
+            if ($(this).prop('checked')) {
+                $select.val(value).trigger('change');
+            } else{
+                if (!isAnyChecked) $select.val('').trigger('change');
+            }
+        });
+    });
+};
+/**********/
 function setCustomDataToggle() {
     const $customDataContainer = $('.custom-data-container');
     const $toggleBtn = $('.custom-data-toggle-button');
@@ -30,7 +63,6 @@ function setAllergensList() {
     const $allergensContainer = $('details.allergies-container'),
         $allergensOptions = $allergensContainer.find('.option-wrapper:not(:has(input#no-allergens)) input'),
         $noAllergensOption = $allergensContainer.find('.option-wrapper:has(input#no-allergens) input'),
-        $allAllergensCheckboxes = $allergensContainer.find('.option-wrapper input'),
         $listSearchInput = $allergensContainer.find('input#allergen-search');
 
     setAllergensSearch($allergensOptions.siblings('label'), $listSearchInput);
@@ -113,12 +145,12 @@ function setCustomDesign() {
             setWritingAttribute($attribute);
         } else {
             setGallerySearch($attribute);
-            setAttributeOptionSelect($attribute);
+            setAdditionsAttributeOptionSelect($attribute);
             setImageSelection($attribute);
         }
     });
 }
-function setAttributeOptionSelect($attribute) {
+function setAdditionsAttributeOptionSelect($attribute) {
     const $options = $attribute.find('.gallery-content .gallery-item, .gallery-content .text-item');
     const $optionsRadioInput = $options.find('input[type="radio"]');
     const $optionsCheckboxInput = $options.find('input[type="checkbox"]');
@@ -727,7 +759,6 @@ function textToImage(text, direction = 'ltr') {
     // Return the image as a data URL
     return canvas.toDataURL('image/png');
 }
-
 /***************/
 function setSingleImagePreview($container, imageData, isLoader = false) {
     const $imagePreview = $container.find('.image-preview .preview-wrapper');

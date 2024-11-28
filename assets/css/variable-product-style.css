@@ -449,7 +449,7 @@ html:has(.custom-data-container.active) {
 }
 
 .canvas-controls img,
-#text-box-controls img, 
+#text-box-controls img,
 #text-box-controls svg {
     width: 20px;
     height: 20px;
@@ -473,7 +473,7 @@ html:has(.custom-data-container.active) {
     color: #fff;
 }
 
-#text-box-controls .input-wrapper #text-color-button{
+#text-box-controls .input-wrapper #text-color-button {
     height: 28px;
 }
 
@@ -493,11 +493,11 @@ html:has(.custom-data-container.active) {
 #text-box-controls .input-wrapper:is(.type-number):not(.active) input,
 #text-box-controls .input-wrapper:not(.active) .align-options-wrapper,
 #text-box-controls .input-wrapper:not(.active) select,
-#text-box-controls .input-wrapper.align-wrapper select{
+#text-box-controls .input-wrapper.align-wrapper select {
     display: none;
 }
 
-#text-box-controls .align-options-wrapper{
+#text-box-controls .align-options-wrapper {
     display: flex;
     position: absolute;
     top: calc(100% + 5px);
@@ -505,7 +505,7 @@ html:has(.custom-data-container.active) {
     transform: translateX(-50%);
 }
 
-#text-box-controls .align-wrapper button{
+#text-box-controls .align-wrapper button {
     margin: 0;
     padding: 0 5px;
     height: 28px;
@@ -516,7 +516,7 @@ html:has(.custom-data-container.active) {
 }
 
 #text-box-controls .align-wrapper button:hover,
-#text-box-controls .align-wrapper button:hover svg path{
+#text-box-controls .align-wrapper button:hover svg path {
     background-color: #000;
     color: #fff;
     stroke: #fff;
@@ -887,7 +887,7 @@ html:has(.custom-data-container.active) {
     left: calc(100% + 5px);
 }
 
-.pretty-product-gallery .slider-nav .slick-slide{
+.pretty-product-gallery .slider-nav .slick-slide {
     margin: auto;
 }
 
@@ -1116,13 +1116,236 @@ body.single-product form details.allergies-container .button-wrapper {
     text-align: center;
 }
 
-/*
-*/
-.single_variation_wrap:has(.added_to_cart){
+/************/
+.value{
+    --checked--color: #77c44c;
+}
+
+.single_variation_wrap:has(.added_to_cart) {
     justify-content: center;
 }
 
 .single_variation_wrap:has(.added_to_cart) .single_variation,
-.single_variation_wrap:has(.added_to_cart) .woocommerce-variation-add-to-cart>*:not(.added_to_cart){
+.single_variation_wrap:has(.added_to_cart) .woocommerce-variation-add-to-cart>*:not(.added_to_cart) {
     display: none !important;
+}
+
+.boolean-option .value {
+    --duration: .4s;
+    --toggle-width: 70px;
+    --toggle-height: 36px;
+    --toggle-padding: 0.15em;
+}
+
+.boolean-option .value .input-wrapper {
+    position: relative;
+    direction: ltr;
+}
+
+.value .hidden-select {
+    display: none;
+}
+
+.checker {
+    display: block;
+    font-size: 40px;
+    padding: var(--toggle-padding);
+    border-radius: 0.25em;
+    transition: transform var(--duration) ease;
+    cursor: pointer;
+}
+
+.checkmark {
+    position: relative;
+    width: calc(var(--toggle-height) - var(--toggle-padding) * 2);
+    height: calc(var(--toggle-height) - var(--toggle-padding) * 2);
+    transition: transform var(--duration) ease;
+    z-index: 5;
+}
+
+.checkmark svg {
+    display: block;
+    background: #e5e5e5;
+    border-radius: 0.15em;
+    transition: background-color var(--duration) ease, transform calc(var(--duration) * 1.5) ease;
+}
+
+.checkmark svg path {
+    stroke-dasharray: 90 90;
+    stroke-dashoffset: 90;
+    transition: stroke-dashoffset calc(var(--duration) / 3) linear calc(var(--duration) / 3);
+}
+
+.checkbox {
+    display: none;
+}
+
+.checkbox:checked~.checkmark {
+    transform: translateX(calc(var(--toggle-width) - var(--toggle-padding) * 3));
+}
+
+.checkbox:checked~.checkmark svg {
+    background: var(--checked--color);
+    transform: translate(-0.4em);
+}
+
+.checkbox:checked~.checkmark svg path {
+    stroke-dashoffset: 0;
+}
+
+.check-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--toggle-width);
+    height: var(--toggle-height);
+    border-radius: inherit;
+    background: white;
+    z-index: 2;
+}
+
+.check-bg:before,
+.check-bg:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: inherit;
+}
+
+.check-bg:after {
+    background: white;
+}
+
+.check-bg:before {
+    transition: transform var(--duration) ease;
+    transform: translateY(30%);
+    transform-origin: bottom center;
+    background: black;
+    filter: blur(0.25em);
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.checker.checker:active {
+    transform: scale(0.85);
+    transition-duration: calc(var(--duration) / 2);
+}
+
+.checker.checker:active .check-bg::before {
+    transform: translateY(0) scale(0.8);
+    opacity: 0.2;
+}
+
+/******/
+
+/* .multiple {
+    --checked--color: #2260ff;
+} */
+
+.multiple .input-group-wrapper {
+    display: flex;
+    gap: 15px;
+    justify-content: end;
+    flex-wrap: wrap;
+}
+
+.multiple .input-group-wrapper .checkbox-wrapper {
+    width: max-content;
+}
+
+.multiple .checkbox-wrapper .checkbox-input {
+    clip: rect(0 0 0 0);
+    -webkit-clip-path: inset(100%);
+    clip-path: inset(100%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile {
+    border-color: var(--checked--color);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    color: var(--checked--color);
+}
+
+.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile:before {
+    transform: scale(1);
+    opacity: 1;
+    background-color: var(--checked--color);
+    border-color: var(--checked--color);
+}
+
+.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile .checkbox-icon,
+.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile .checkbox-label {
+    color: var(--checked--color);
+}
+
+.multiple .checkbox-wrapper .checkbox-input:focus+.checkbox-tile:before {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.multiple .input-group-wrapper .checkbox-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: end;
+    min-width: 50px;
+    min-height: 48px;
+    padding: 5px 8px;
+    border-radius: 0.5rem;
+    border: 2px solid #b5bfd9;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.multiple .checkbox-wrapper .checkbox-tile:before {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #b5bfd9;
+    background-color: #fff;
+    border-radius: 50%;
+    top: 0.25rem;
+    left: 0.25rem;
+    opacity: 0;
+    transform: scale(0);
+    transition: 0.25s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' fill='%23FFFFFF' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' fill='none'%3E%3C/rect%3E%3Cpolyline points='216 72.005 104 184 48 128.005' fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'%3E%3C/polyline%3E%3C/svg%3E");
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+.multiple .checkbox-wrapper .checkbox-tile:hover {
+    border-color: var(--checked--color);
+}
+
+.multiple .checkbox-wrapper .checkbox-tile:hover:before {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.multiple .checkbox-wrapper .checkbox-icon {
+    transition: 0.375s ease;
+    color: #494949;
+}
+
+.multiple .checkbox-wrapper .checkbox-icon svg {
+    width: 3rem;
+    height: 3rem;
+}
+
+.multiple .checkbox-wrapper .checkbox-label {
+    color: #707070;
+    transition: 0.375s ease;
+    text-align: center;
 }

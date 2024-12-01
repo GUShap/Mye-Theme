@@ -107,7 +107,13 @@
       if ($veganRowTD.text() !== 'טבעוני') $veganRow.hide();
       $veganRowTD.remove();
       $veganRowTH.text($veganRowTH.text().replace(':', ''));
-
+      // chocolate ganache
+      const $chocolateGanacheRow = $(this).find('tr:contains("שכבת גנאש שוקולד")'),
+        $chocolateGanacheRowTH = $chocolateGanacheRow.find('th'),
+        $chocolateGanacheRowTD = $chocolateGanacheRow.find('td p');
+      if ($chocolateGanacheRowTD.text() !== 'כן') $chocolateGanacheRow.hide();
+      $chocolateGanacheRowTD.remove();
+      $chocolateGanacheRowTH.text($chocolateGanacheRowTH.text().replace(':', ''));
     });
   }
 
@@ -161,7 +167,7 @@
     $calendars.each(function () {
       const $monthsNavArrow = $(this).find('.arrow-button');
       const $datesWrapper = $(this).find('.dates-wrapper .inner');
-      
+
       $monthsNavArrow.on('click', function () {
         const $centeredMonth = $datesWrapper.find('.calendar-month.centered');
         const isNext = $(this).hasClass('next-month');
@@ -169,7 +175,7 @@
         const currentTranslateX = $datesWrapper.css('transform') !== 'none' ? +$datesWrapper.css('transform').split(',')[4] : 0;
         const nextTranslateX = isNext ? currentTranslateX + $datesWrapper.width() : currentTranslateX - $datesWrapper.width();
         if (!$nextMonth.length) return;
-        
+
         // console.log(currentTranslateX);
         $centeredMonth.removeClass('centered');
         $nextMonth.addClass('centered');

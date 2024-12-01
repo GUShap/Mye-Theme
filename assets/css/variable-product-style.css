@@ -1117,6 +1117,15 @@ body.single-product form details.allergies-container .button-wrapper {
 }
 
 /************/
+
+/* VARIATIONS TABLE */
+th.label .message{
+    font-size: 13px;
+    margin: 0;
+    font-weight: 400;
+    font-style: italic;
+}
+
 .value{
     --checked--color: #77c44c;
 }
@@ -1130,14 +1139,15 @@ body.single-product form details.allergies-container .button-wrapper {
     display: none !important;
 }
 
-.boolean-option .value {
+/* Boolean */
+.boolean .value {
     --duration: .4s;
     --toggle-width: 70px;
     --toggle-height: 36px;
     --toggle-padding: 0.15em;
 }
 
-.boolean-option .value .input-wrapper {
+.boolean .value .input-wrapper {
     position: relative;
     direction: ltr;
 }
@@ -1239,24 +1249,20 @@ body.single-product form details.allergies-container .button-wrapper {
     opacity: 0.2;
 }
 
-/******/
+/* Multiple */
 
-/* .multiple {
-    --checked--color: #2260ff;
-} */
-
-.multiple .input-group-wrapper {
+.value .input-group-wrapper {
     display: flex;
     gap: 15px;
     justify-content: end;
     flex-wrap: wrap;
 }
 
-.multiple .input-group-wrapper .checkbox-wrapper {
+.value .input-group-wrapper .checkbox-wrapper {
     width: max-content;
 }
 
-.multiple .checkbox-wrapper .checkbox-input {
+.value .checkbox-wrapper .checkbox-input {
     clip: rect(0 0 0 0);
     -webkit-clip-path: inset(100%);
     clip-path: inset(100%);
@@ -1267,30 +1273,30 @@ body.single-product form details.allergies-container .button-wrapper {
     width: 1px;
 }
 
-.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile {
+.value .checkbox-wrapper .checkbox-input:checked+.checkbox-tile {
     border-color: var(--checked--color);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     color: var(--checked--color);
 }
 
-.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile:before {
+.value .checkbox-wrapper .checkbox-input:checked+.checkbox-tile:before {
     transform: scale(1);
     opacity: 1;
     background-color: var(--checked--color);
     border-color: var(--checked--color);
 }
 
-.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile .checkbox-icon,
-.multiple .checkbox-wrapper .checkbox-input:checked+.checkbox-tile .checkbox-label {
+.value .checkbox-wrapper .checkbox-input:checked+.checkbox-tile .checkbox-icon,
+.value .checkbox-wrapper .checkbox-input:checked+.checkbox-tile .checkbox-label {
     color: var(--checked--color);
 }
 
-.multiple .checkbox-wrapper .checkbox-input:focus+.checkbox-tile:before {
+.value .checkbox-wrapper .checkbox-input:focus+.checkbox-tile:before {
     transform: scale(1);
     opacity: 1;
 }
 
-.multiple .input-group-wrapper .checkbox-tile {
+.value .input-group-wrapper .checkbox-tile {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1305,7 +1311,7 @@ body.single-product form details.allergies-container .button-wrapper {
     position: relative;
 }
 
-.multiple .checkbox-wrapper .checkbox-tile:before {
+.value .checkbox-wrapper .checkbox-tile:before {
     content: "";
     position: absolute;
     display: block;
@@ -1325,26 +1331,26 @@ body.single-product form details.allergies-container .button-wrapper {
     background-position: 50% 50%;
 }
 
-.multiple .checkbox-wrapper .checkbox-tile:hover {
+.value .checkbox-wrapper .checkbox-tile:hover {
     border-color: var(--checked--color);
 }
 
-.multiple .checkbox-wrapper .checkbox-tile:hover:before {
+.value .checkbox-wrapper .checkbox-tile:hover:before {
     transform: scale(1);
     opacity: 1;
 }
 
-.multiple .checkbox-wrapper .checkbox-icon {
+.value .checkbox-wrapper .checkbox-icon {
     transition: 0.375s ease;
     color: #494949;
 }
 
-.multiple .checkbox-wrapper .checkbox-icon svg {
+.value .checkbox-wrapper .checkbox-icon svg {
     width: 3rem;
     height: 3rem;
 }
 
-.multiple .checkbox-wrapper .checkbox-label {
+.value .checkbox-wrapper .checkbox-label {
     color: #707070;
     transition: 0.375s ease;
     text-align: center;

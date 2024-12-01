@@ -22,27 +22,45 @@ $options_label = wc_attribute_label($attribute_name);
 ?>
 
 <?php if (!$is_boolean && !$is_multiple_options) { ?>
-    <tr>
+    <tr class="classic">
         <th class="label">
             <label for="<?php echo $option_id ?>"><?php echo $options_label ?></label>
+            <p class="message">יש לבחור אפשרות אחת</p>
         </th>
         <td class="value">
-            <?php
-            wc_dropdown_variation_attribute_options(
-                array(
-                    'options' => $options,
-                    'attribute' => $attribute_name,
-                    'product' => $product,
-                )
-            );
-            ?>
+            <div class="input-group-wrapper" data-limit="<?php echo $max_options ?>">
+                <?php foreach ($options as $option) {
+                    $term = get_term_by('slug', $option, $attribute_name);
+                    ?>
+                    <div class="checkbox-wrapper">
+                        <label class="checkbox-wrapper">
+                            <input type="radio" class="checkbox-input" name="<?php echo $attribute_name ?>"
+                                value="<?php echo $option ?>" data-term-id="<?php $term->term_taxonomy_id ?>" />
+                            <span class="checkbox-tile">
+                                <span class="checkbox-label"><?php echo $term->name ?></span>
+                            </span>
+                        </label>
+                    </div>
+                <?php } ?>
+            </div>
+            <span class="hidden-select">
+                <?php
+                wc_dropdown_variation_attribute_options(
+                    array(
+                        'options' => $options,
+                        'attribute' => $attribute_name,
+                        'product' => $product,
+                    )
+                );
+                ?>
+            </span>
         </td>
     </tr>
 <?php } ?>
 <?php if ($is_boolean) {
     $is_checked = isset($default_attributes[$attribute_name]) && $default_attributes[$attribute_name] === 'true';
     ?>
-    <tr class="boolean-option">
+    <tr class="boolean">
         <th class="label">
             <label for="<?php echo $option_id ?>"><?php echo $options_label ?></label>
         </th>
@@ -78,6 +96,7 @@ $options_label = wc_attribute_label($attribute_name);
     <tr class="multiple">
         <th class="label">
             <label for="<?php echo $option_id ?>"><?php echo $options_label ?></label>
+            <p class="message">ניתן לבחור עד <?php echo $max_options ?> אפשרויות</p>
         </th>
         <td class="value">
             <div class="input-group-wrapper" data-limit="<?php echo $max_options ?>">
@@ -86,7 +105,8 @@ $options_label = wc_attribute_label($attribute_name);
                     ?>
                     <div class="checkbox-wrapper">
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" class="checkbox-input" name="multi_options_attr[<?php echo $attribute_name ?>][]" value="<?php echo $option ?>"
+                            <input type="checkbox" class="checkbox-input"
+                                name="multi_options_attr[<?php echo $attribute_name ?>][]" value="<?php echo $option ?>"
                                 data-term-id="<?php $term->term_taxonomy_id ?>" />
                             <span class="checkbox-tile">
                                 <span class="checkbox-label"><?php echo $term->name ?></span>

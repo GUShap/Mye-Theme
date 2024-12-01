@@ -56,14 +56,29 @@ function set_custom_variation_attr_list($cart_item)
 	$variation_id = $cart_item['variation_id'];
 	$product = wc_get_product($variation_id);
 	$variation_attributes = $product->get_variation_attributes();
+	$multiple_options_attributes = $cart_item['multiple_options_attributes'] ?? [];
 	$variation_info = '';
+
+	if (!empty($multiple_options_attributes)) {
+		foreach ($multiple_options_attributes as $attr_slug => $options) {
+			// get both options term->name as a string
+			$taxonomy = get_taxonomy($attr_slug);
+			$label = $taxonomy->labels->singular_name;
+			$variation_attributes["attribute_$attr_slug"] = implode(', ', array_map(function ($option) use ($attr_slug) {
+				$term = get_term_by('slug', $option, $attr_slug);
+				return $term->name;
+			}, $options));
+
+
+		}
+	}
 	if (!empty($variation_attributes)) {
 		$variation_info = '<ul class="variation-info">';
 		foreach ($variation_attributes as $attribute_name => $term_value) {
 			$taxonomy = str_replace('attribute_', '', $attribute_name);
 			$term = get_term_by('slug', $term_value, $taxonomy);
 			$label = wc_attribute_label($taxonomy);
-			$term_name = $term->name;
+			$term_name = !empty($term) ? $term->name : $term_value;
 			if ($term_value !== 'false') {
 				$variation_info .= '<li class="variation-attribute">' . wc_attribute_label($label);
 				$variation_info .= $term_value == 'true'
@@ -76,25 +91,6 @@ function set_custom_variation_attr_list($cart_item)
 
 	echo $variation_info;
 }
-/************/
-
-// Automatically apply the custom checkbox column to all WooCommerce product attribute taxonomies
-function apply_custom_checkbox_to_taxonomies_list()
-{
-	$taxonomies = wc_get_attribute_taxonomies();
-	// 	dd($taxonomies);
-
-	if (!empty($taxonomies)) {
-		foreach ($taxonomies as $taxonomy) {
-			$taxonomy_name = wc_attribute_taxonomy_name($taxonomy->attribute_name);
-
-			// Add the checkbox column to the terms list
-			add_filter("manage_edit-{$taxonomy_name}_columns", 'add_custom_checkbox_column_to_terms_list');
-			add_filter("manage_{$taxonomy_name}_custom_column", 'display_custom_checkbox_column_in_terms_list', 10, 3);
-		}
-	}
-}
-add_action('init', 'apply_custom_checkbox_to_taxonomies_list');
 
 /******************************/
 // add_action('template_redirect', function () {

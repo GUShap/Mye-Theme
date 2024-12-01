@@ -96,12 +96,9 @@ function update_cart_item_price($cart_object)
 }
 add_action('woocommerce_before_calculate_totals', 'update_cart_item_price', 10, 1);
 
-
 function custom_modify_item_attributes($item_data, $cart_item)
 {
     if ($cart_item['variation_id'] > 0) {
-
-        // $counter = 0;
         foreach ($item_data as $idx => $item) {
             if ($item['key'] == 'טבעוני' || $item['key'] == 'ללא גלוטן') {
                 if ($item['value'] == 'לא טבעוני' || $item['value'] == 'רגיל')
@@ -114,8 +111,8 @@ function custom_modify_item_attributes($item_data, $cart_item)
                 }
             }
         }
-        return $item_data;
     }
+    return $item_data;
 }
 add_filter('woocommerce_get_item_data', 'custom_modify_item_attributes', 10, 2);
 
@@ -125,9 +122,11 @@ function add_custom_data_to_order_item($item, $cart_item_key, $values, $order)
     if (isset($values['allergen_list'])) {
         $item->add_meta_data('allergen_list', $values['allergen_list'], true);
     }
-
     if (isset($values['custom_attributes'])) {
         $item->add_meta_data('custom_attributes', $values['custom_attributes'], true);
+    }
+    if (isset($values['multiple_options_attributes'])) {
+        $item->add_meta_data('multiple_options_attributes', $values['multiple_options_attributes'], true);
     }
     return $item;
 }
@@ -140,7 +139,7 @@ function set_custom_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
         $thumbnail_html = '<div class="cart-item-thumbnail-gallery">';
         foreach ($custom_attributes_terms as $term_value_data) {
             foreach ($term_value_data as $key => $value_set) {
-                if(!empty($value_set['image_src'])){
+                if (!empty($value_set['image_src'])) {
                     $thumbnail_html .= '<img src="' . $value_set['image_src'] . '" alt="custom-image">';
                 }
             }
@@ -342,7 +341,7 @@ function admin_order_item_headers()
 {
     $column_1_name = 'תוספות';
     $column_2_name = 'אלרגיות';
-    echo "<th><span style=\"color:green;font-weight:600;\">$column_1_name</span></th>";
+    echo "<th style='text-align:center'><span style=\"color:green;font-weight:600;\">$column_1_name</span></th>";
     echo "<th><span style=\"color:red;font-weight:600;\">$column_2_name</span></th>";
 }
 add_action('woocommerce_admin_order_item_headers', 'admin_order_item_headers', 10);
@@ -400,8 +399,22 @@ function end_admin_html_buffer()
 add_action('admin_head', 'start_admin_html_buffer', 999);
 add_action('admin_footer', 'end_admin_html_buffer', 999);
 
-// 
-function set_order_item_email_images($image, $item)
+function wp_kama_woocommerce_before_order_itemmeta_action($item_id, $item, $null)
 {
+
+    $multiple_options_attributes = $item->get_meta('multiple_options_attributes');
+    if (empty($multiple_options_attributes))
+        return;
+
+        foreach($multiple_options_attributes as $attr_slug => $options){
+            $term_value = implode(', ', array_map(function ($option) use ($attr_slug) {
+                $term = get_term_by('slug', $option, $attr_slug);
+                return $term->name;
+            }, $options));
+            $item->update_meta_data($attr_slug, $term_value);
+        }
+        
+    // dd($item->get_meta('pa_cupcake_base'));
 }
-add_filter('woocommerce_order_item_thumbnail', 'set_order_item_email_images', 10, 2);
+
+add_action('woocommerce_before_order_itemmeta', 'wp_kama_woocommerce_before_order_itemmeta_action', 10, 3);

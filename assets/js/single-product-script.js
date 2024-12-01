@@ -20,9 +20,9 @@ $(window).on('load', function () {
 
 function setVariationsAttributes() {
     const $variationsTable = $('table.variations');
-    const $booleanAttributes = $variationsTable.find('.boolean-option');
+    const $booleanAttributes = $variationsTable.find('.boolean');
     const $multipleOptionsAttributes = $variationsTable.find('.multiple');
-
+    const $selectAttributes = $variationsTable.find('.classic');
     $booleanAttributes.each(function () {
         const $checkbox = $(this).find('input[type="checkbox"]');
         const $select = $(this).find('select');
@@ -44,9 +44,19 @@ function setVariationsAttributes() {
             const value = $(this).val();
             if ($(this).prop('checked')) {
                 $select.val(value).trigger('change');
-            } else{
+            } else {
                 if (!isAnyChecked) $select.val('').trigger('change');
             }
+        });
+    });
+
+    $selectAttributes.each(function () {
+        const $radio = $(this).find('input[type="radio"]');
+        const $select = $(this).find('select');
+
+        $radio.on('change', function () {
+            const value = $(this).val();
+            $select.val(value).trigger('change');
         });
     });
 };

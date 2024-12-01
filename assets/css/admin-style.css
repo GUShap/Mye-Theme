@@ -21,12 +21,6 @@
     padding-bottom: 0;
 }
 
-#woocommerce-order-items table.display_meta tr {
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 10px;
-}
-
 #woocommerce-order-items table.display_meta tr:has(.allergens_list) {
     display: none;
 }
@@ -76,12 +70,27 @@ h1.managment-title {
     text-align: center;
 }
 
-.custom-attributes-list img{
-    max-width: 150px;
+.custom-attributes-list li{
+    display: flex;
 }
 
-.custom-attributes-list .inner-list{
-    margin: 0 15px;
+.custom-attributes-list li p,
+.custom-attributes-list ul{
+    margin: 0;
+}
+
+.custom-attributes-list li{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+   margin-bottom: 25px;
+   box-shadow: 0 0 10px 0 rgba(0,0,0,0.1);
+}
+
+
+.custom-attributes-list img{
+    max-width: 130px;
 }
 /* calendar */
 .calendar {

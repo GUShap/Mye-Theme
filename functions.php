@@ -27,6 +27,7 @@ add_action('wp_enqueue_scripts', 'child_theme_configurator_css', 100);
 // END ENQUEUE PARENT ACTION
 
 define('HE_CHILD_THEME_DIR', trailingslashit(get_stylesheet_directory()));
+define('HE_CHILD_THEME_URI', trailingslashit(get_stylesheet_directory_uri()));
 
 /*******/
 require_once HE_CHILD_THEME_DIR . 'inc/admin-functions.php';

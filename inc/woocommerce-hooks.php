@@ -68,9 +68,6 @@ function custom_variable_product_price($price, $product)
 add_filter('woocommerce_variable_sale_price_html', 'custom_variable_product_price', 10, 2);
 add_filter('woocommerce_variable_price_html', 'custom_variable_product_price', 10, 2);
 
-
-// Add attribute label as data-attribute-label to the variation select element
-
 function add_label_as_data_attribute_to_variation_select($html, $args)
 {
     // Get the attribute label
@@ -158,6 +155,7 @@ add_filter('woocommerce_cart_item_thumbnail', 'set_custom_item_thumbnail', 10, 3
 
 function add_custom_data_info($cart_item, $cart_item_key)
 {
+    set_custom_variation_attr_list($cart_item);
     set_item_custom_information($cart_item);
 }
 add_action('woocommerce_after_cart_item_name', 'add_custom_data_info', 10, 2);

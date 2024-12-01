@@ -1309,8 +1309,8 @@ body.single-product form details.allergies-container .button-wrapper {
     content: "";
     position: absolute;
     display: block;
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 15px;
+    height: 15px;
     border: 2px solid #b5bfd9;
     background-color: #fff;
     border-radius: 50%;

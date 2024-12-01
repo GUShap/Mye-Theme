@@ -86,7 +86,7 @@ $options_label = wc_attribute_label($attribute_name);
                     ?>
                     <div class="checkbox-wrapper">
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" class="checkbox-input" name="multi_options_attr[]" value="<?php echo $option ?>"
+                            <input type="checkbox" class="checkbox-input" name="multi_options_attr[<?php echo $attribute_name ?>][]" value="<?php echo $option ?>"
                                 data-term-id="<?php $term->term_taxonomy_id ?>" />
                             <span class="checkbox-tile">
                                 <span class="checkbox-label"><?php echo $term->name ?></span>

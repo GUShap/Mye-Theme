@@ -94,11 +94,13 @@ function woocommerce_add_to_cart_variable_rc_callback()
   $custom_attributes_raw = $_POST['items_data'] ?? [];
   $cake_writing = $_POST['writing'] ?? '';
   $custom_attributes = [];
+  $multiple_options_attr = $_POST['multi_options_attr'] ?? [];
+
   if (!empty($custom_attributes_raw)) {
     foreach ($custom_attributes_raw as $attr_key => $inner_array) {
       foreach ($inner_array as $option_key_raw => $values) {
         if ($option_key_raw == 'custom_image') {
-          $custom_image_id = save_user_image_as_file( $values['image_src']);
+          $custom_image_id = save_user_image_as_file($values['image_src']);
           if ($custom_image_id) {
             $values['image_src'] = wp_get_attachment_url($custom_image_id);
             wp_schedule_single_event(time() + 3 * WEEK_IN_SECONDS, 'delete_user_custom_image', array($custom_image_id));
@@ -123,6 +125,14 @@ function woocommerce_add_to_cart_variable_rc_callback()
   }
   if (!empty($cake_writing)) {
     $cart_item_data['cake_writing'] = $cake_writing;
+  }
+  if (!empty($multiple_options_attr)) {
+    foreach ($multiple_options_attr as $attr_slug => $options) {
+      if (count($options) < 2)
+        continue;
+
+      $cart_item_data['multiple_options_attributes'][$attr_slug] = $options;
+    }
   }
 
   $variation = [];

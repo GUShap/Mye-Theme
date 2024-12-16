@@ -158,7 +158,9 @@ span.status {
     width: 350px;
     position: absolute;
     top: 10px;
+    left: 350px;
     z-index: 1;
+    direction: ltr;
 }
 
 .arrow-button {

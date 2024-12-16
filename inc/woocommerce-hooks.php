@@ -186,8 +186,6 @@ function filter_woocommerce_get_item_data($item_data, $cart_item)
 {
     return null;
 }
-
-// add the filter 
 add_filter('woocommerce_get_item_data', 'filter_woocommerce_get_item_data', 10, 2);
 
 function hide_shipping_when_free_shipping_is_available($show_shipping)
@@ -283,35 +281,54 @@ function save_custom_fields_value($order, $data)
         $order->update_meta_data('pickup_date', $_POST['pickup_date']);
     }
 }
-
 add_action('woocommerce_checkout_create_order', 'save_custom_fields_value', 10, 2);
 
 function notify_order_recipients($order_id)
 {
     // Retrieve the '_order_recipients' meta as an array
     $order_recipients = get_post_meta($order_id, '_order_recipients', true);
-    $messages_data = [];
-
-    if (empty($order_recipients))
-        return;
-    // Check if there are recipients to process
-    foreach ($order_recipients as $index => $recipient) {
-        // Check if the recipient's status is 'pending'
-        if (isset($recipient['status']) && $recipient['status'] !== 'pending')
-            continue;
-        // Extract the phone number
-        $phone = $recipient['phone'];
-        $message = "היי {$recipient['name']}, התקבלה אצלנו הזמנת קינוח עבורך, מספר הזמנה *{$order_id}* 🎂🎂🎂. כדי שכולם/ן יוכלו להנות עליך למלא טופס אישור רכיבים בקישור הבא https://shorturl.at/lOKpO";
-        $messages_data[$phone] = $message;
-
-    }
-    // Run the WhatsApp function to send a message
-    magic_wa_send_multiple_messages_handler($order_id, $messages_data);
-
-    // send_multiple_messages($messages_data);
+    // set_order_magicwa_message($order_id, $order_recipients);
+    set_order_email_message($order_id, $order_recipients);
 }
-
 add_action('woocommerce_order_status_processing', 'notify_order_recipients', 10, 1);
+
+function set_order_email_pickup_date($order, $sent_to_admin, $plain_text, $email)
+{
+    $order_pickup_date = $order->get_meta('pickup_date') ?? '';
+    $pickup_date_template_path = HE_CHILD_THEME_DIR . '/woocommerce/emails/email-pickup-date.php';
+    if (file_exists($pickup_date_template_path)) {
+        include $pickup_date_template_path;
+    }
+}
+add_action('woocommerce_email_after_order_table', 'set_order_email_pickup_date', 10, 4);
+
+function set_ingredients_form_link($order, $sent_to_admin, $plain_text, $email)
+{
+    $order_id = $order->get_order_number();
+    $order_recipients = get_post_meta($order->get_id(), '_order_recipients', true) ?? [];
+    $ingredients_form_url = get_option('ingredients_form_url', '');
+    $ingredients_form_link_template_path = HE_CHILD_THEME_DIR . '/woocommerce/emails/email-ingredients-form.php';
+    if (file_exists($ingredients_form_link_template_path)) {
+        include $ingredients_form_link_template_path;
+    }
+
+}
+add_action('woocommerce_email_after_order_table', 'set_ingredients_form_link', 11, 4);
+
+function set_post_order_info($order)
+{
+    $order_id = $order->get_order_number();
+    $order_recipients = $order->get_meta('_order_recipients') ?? [];
+    $ingredients_form_url = get_option('ingredients_form_url', '');
+    $order_pickup_date = $order->get_meta('pickup_date') ?? '';
+    $order_custom_info_template_path = HE_CHILD_THEME_DIR . '/templates/order/order-custom-information.php';
+
+    if (file_exists($order_custom_info_template_path)) {
+        include $order_custom_info_template_path;
+    }
+
+}
+add_action('woocommerce_order_details_after_order_table', 'set_post_order_info', 10, 1);
 
 /***** ORDER ADMIN ******/
 
@@ -319,19 +336,20 @@ add_action('woocommerce_order_status_processing', 'notify_order_recipients', 10,
 function add_custom_order_data_as_column($order)
 {
     // Get the custom data you want to display.
-    $order_recipients = get_post_meta($order->get_id(), '_order_recipients', true);
-    // foreach ($order_recipients as $resipient_key => $recipient) {
-    //     $order_recipients[$resipient_key]['status'] = 'pending';
-    // }
-    // $order->update_status('pending');
-    // $order->update_meta_data('_order_recipients', $order_recipients);
-    // $order->save();
+    $order_recipients = $order->get_meta('_order_recipients') ?? [];
+    $order_pickup_date = $order->get_meta('pickup_date') ?? '';
 
     // Check if the custom data exists.
     if (!empty($order_recipients)) {
         $order_recipients_list_template_path = HE_CHILD_THEME_DIR . '/templates/admin/order/order-recipients-list.php';
         if (file_exists($order_recipients_list_template_path)) {
             include $order_recipients_list_template_path;
+        }
+    }
+    if (!empty($order_pickup_date)) {
+        $order_pickup_date_template_path = HE_CHILD_THEME_DIR . '/templates/admin/order/order-pickup-date.php';
+        if (file_exists($order_pickup_date_template_path)) {
+            include $order_pickup_date_template_path;
         }
     }
 }
@@ -406,15 +424,17 @@ function wp_kama_woocommerce_before_order_itemmeta_action($item_id, $item, $null
     if (empty($multiple_options_attributes))
         return;
 
-        foreach($multiple_options_attributes as $attr_slug => $options){
-            $term_value = implode(', ', array_map(function ($option) use ($attr_slug) {
-                $term = get_term_by('slug', $option, $attr_slug);
-                return $term->name;
-            }, $options));
-            $item->update_meta_data($attr_slug, $term_value);
-        }
-        
+    foreach ($multiple_options_attributes as $attr_slug => $options) {
+        $term_value = implode(', ', array_map(function ($option) use ($attr_slug) {
+            $term = get_term_by('slug', $option, $attr_slug);
+            return $term->name;
+        }, $options));
+        $item->update_meta_data($attr_slug, $term_value);
+    }
+
     // dd($item->get_meta('pa_cupcake_base'));
 }
 
 add_action('woocommerce_before_order_itemmeta', 'wp_kama_woocommerce_before_order_itemmeta_action', 10, 3);
+
+/***********/

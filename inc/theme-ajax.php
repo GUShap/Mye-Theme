@@ -171,3 +171,15 @@ function woocommerce_add_to_cart_variable_rc_callback()
 }
 add_action('wp_ajax_woocommerce_add_to_cart_variable_rc', 'woocommerce_add_to_cart_variable_rc_callback');
 add_action('wp_ajax_nopriv_woocommerce_add_to_cart_variable_rc', 'woocommerce_add_to_cart_variable_rc_callback');
+
+// 
+
+function save_sweet_settings_handler()
+{
+  $response = [];
+  $ingredients_form_url = $_POST['ingredients_form_url'] ?? '';
+  update_option('ingredients_form_url', $ingredients_form_url);
+  $response['status'] = 'success';
+  wp_send_json_success($response);
+}
+add_action('wp_ajax_save_sweet_settings', 'save_sweet_settings_handler');

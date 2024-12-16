@@ -93,7 +93,61 @@ function set_custom_variation_attr_list($cart_item)
 	echo $variation_info;
 }
 
+function set_order_magicwa_message($order_id, $order_recipients)
+{
+	$messages_data = [];
+
+	if (empty($order_recipients))
+		return;
+	// Check if there are recipients to process
+	foreach ($order_recipients as $index => $recipient) {
+		// Check if the recipient's status is 'pending'
+		if (isset($recipient['status']) && $recipient['status'] !== 'pending')
+			continue;
+		// Extract the phone number
+		$phone = $recipient['phone'];
+		$message = "היי {$recipient['name']}, התקבלה אצלנו הזמנת קינוח עבורך, מספר הזמנה *{$order_id}* 🎂🎂🎂. כדי שכולם/ן יוכלו להנות עליך למלא טופס אישור רכיבים בקישור הבא https://shorturl.at/lOKpO";
+		$messages_data[$phone] = $message;
+
+	}
+	// Run the WhatsApp function to send a message
+	magic_wa_send_multiple_messages_handler($order_id, $messages_data);
+
+	// send_multiple_messages($messages_data);
+}
+
+function set_order_email_message($order_id, $order_recipients)
+{
+	$order = wc_get_order($order_id);
+	$ingredients_form_url = get_option('ingredients_form_url', '');
+	$order_pickup_date = get_post_meta($order_id, 'pickup_date', true);
+	$recipient_email_message_template_path = HE_CHILD_THEME_DIR . '/woocommerce/emails/email-order-recipient.php';
+	foreach ($order_recipients as $recipient) {
+		if ($recipient['email'] === $order->get_billing_email())
+			continue;
+		$to = $recipient['email'];
+		$subject = "אישור רכיבים להזמנה מספר $order_id";
+		$message = '';
+		if (file_exists($recipient_email_message_template_path)) {
+			ob_start();
+			include $recipient_email_message_template_path;
+			$message = ob_get_clean();
+			$message = str_replace('{site_title}', get_bloginfo('name'), $message);
+		}
+		$res = wp_mail($to, $subject, $message, ['Content-Type: text/html; charset=UTF-8']);
+		// dd($res);
+	}
+}
+
 /******************************/
+add_action('template_redirect', function () {
+	$order_id = 13164;
+	$order_recipients = get_post_meta($order_id, '_order_recipients', true);
+
+	// set_order_email_message($order_id, $order_recipients);
+	// print_r(wp_mail('gushap2021@gmail.com', 'order_recipients', 'test', ['Content-Type: text/html; charset=UTF-8']));
+	// set_order_email_message($order_id, $order_recipients);
+});
 // add_action('template_redirect', function () {
 // 	return;
 // 	$product_id = 1672; // Your product ID

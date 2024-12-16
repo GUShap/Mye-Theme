@@ -396,14 +396,18 @@ html:has(.custom-data-container.active) {
     }
 }
 
-.text-box input {
+.text-box textarea {
     /* border: none !important; */
-    outline: none !important;
+    /* outline: none !important;
     background: transparent;
     padding: 0 !important;
     width: fit-content !important;
     min-width: 100% !important;
-    position: relative;
+    position: relative; */
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 2px 0;
+    line-height: 1;
+    font-size: 18px;
 }
 
 .text-box:focus {

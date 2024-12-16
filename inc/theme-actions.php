@@ -33,7 +33,40 @@ function register_sweet_management_menu()
 
 add_action('admin_menu', 'register_sweet_management_menu');
 
+// add submenu item of "settings"
+function display_sweet_settings_page()
+{
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    $settings_page_template_path = HE_CHILD_THEME_DIR . 'templates/admin/managment/settings-page.php';
+    if (file_exists($settings_page_template_path)) {
+        require_once $settings_page_template_path;
+    }
+}
 
+function register_sweet_settings_submenu()
+{
+    add_submenu_page(
+        'sweet_management',            // Parent menu slug
+        'Sweet Settings',              // Page title
+        'Settings',                    // Menu title
+        'manage_options',              // Capability required to access the page
+        'sweet_settings',              // Menu slug
+        'display_sweet_settings_page'  // Function to display the page content
+    );
+}
+
+add_action('admin_menu', 'register_sweet_settings_submenu');
+
+// when saving the settings
+function save_sweet_settings_handle()
+{
+    $ingredients_form_url = $_POST['ingredients_form_url'] ?? '';
+    update_option('ingredients_form_url', $ingredients_form_url);
+}
+
+add_action('admin_save_sweet_settings', 'save_sweet_settings_handle');
 /************************/
 function register_custom_widgets($widgets_manager)
 {
@@ -75,7 +108,7 @@ function enqueue_custom_script()
         wp_enqueue_script('touch-punch', 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js', array('jquery', 'jquery-ui', 'jquery-ui-draggable'), '0.2.3');
         wp_enqueue_script('htmltocanvas', 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', array('jquery'), '1.4.1');
         wp_enqueue_script('jscolor-lib', HE_CHILD_THEME_URI . '/assets/lib/color-picker/jscolor.min.js', array('jquery'), '2.3.6');
-        wp_enqueue_script('single-product-script', HE_CHILD_THEME_DIR . '/assets/js/single-product-script.js', array('jquery', 'slick'), time(), true);
+        wp_enqueue_script('single-product-script', HE_CHILD_THEME_URI . '/assets/js/single-product-script.js', array('jquery', 'slick'), time(), true);
         wp_localize_script('single-product-script', 'siteConfig', $siteConfig);
         wp_enqueue_style('single-product-style', HE_CHILD_THEME_URI . '/assets/css/variable-product-style.css', array(), time(), 'all');
 

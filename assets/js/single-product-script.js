@@ -380,7 +380,7 @@ function addTextBox($canvas) {
     const $canvasContainer = $canvas.parent(); // Assuming the canvas has a parent container
 
     // Create a new text box element
-    const $textInput = $('<textarea rows="2" placeholder="טקסט אישי..." />');
+    const $textInput = $('<textarea rows="1" placeholder="טקסט אישי..." />');
     const $deleteButton = $('<button type="button" class="remove-textbox-button">&#215;</button>');
     const $textBox = $(`<div class="text-box" cancelable="false"></div>`);
 
@@ -399,6 +399,7 @@ function addTextBox($canvas) {
         },
         drag: function () {
             $(this).css('transform', 'translate(0, 0)');
+            $(this).find('textarea').css('background-color', 'rgba(255, 255, 255, 0.2)');
         },
         stop: function () {
             const boxRect = this.getBoundingClientRect();
@@ -410,7 +411,7 @@ function addTextBox($canvas) {
                 $(this).css('bottom', 0);
             }
             showTextBoxControls($(this));
-            $(this).find('textarea').focus();
+            $(this).find('textarea').focus().css('background-color', 'rgba(255, 255, 255, 0.8)');
         }
     });
     // Attach event to handle text box selection
@@ -419,9 +420,6 @@ function addTextBox($canvas) {
         showTextBoxControls($textBox); // Pass the selected text box for control
     });
 
-    $textInput.on('input', function () {
-
-    });
     // Deselect text box when clicking outside
     $canvasContainer.on('click', function () {
         hideTextBoxControls(); // Hide controls when clicking outside of the text box
@@ -431,7 +429,7 @@ function addTextBox($canvas) {
 
     $textBox.on('click', function (e) {
         e.stopPropagation();
-        $(this).find('input').focus();
+        $(this).find('textarea').focus();
     });
 
 

@@ -28,3 +28,17 @@ function sanitize_svg_on_upload($data, $file, $filename, $mimes) {
     return $data;
 }
 add_filter('wp_check_filetype_and_ext', 'sanitize_svg_on_upload', 10, 4);
+
+if(!function_exists('checkout_fields')){
+    function checkout_fields($fields){
+        unset($fields['billing']['billing_company']);
+        unset($fields['billing']['billing_address_2']);
+        unset($fields['billing']['billing_address_1']);
+        unset($fields['billing']['billing_city']);
+        unset($fields['billing']['billing_postcode']);
+        unset($fields['billing']['billing_country']);
+        unset($fields['billing']['billing_state']);
+        return $fields;
+    }
+    add_filter('woocommerce_checkout_fields', 'checkout_fields', 100);
+}

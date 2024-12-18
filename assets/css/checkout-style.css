@@ -80,3 +80,19 @@ table.shop_table .allergens-list {
         max-width: 50%;
     }
 }
+
+/* Order */
+
+.woocommerce-order-details h2{
+    font-family: 'Heebo', sans-serif;
+}
+
+.woocommerce-order-details table.shop_table,
+.woocommerce-customer-details {
+    max-width: 730px;
+    margin: 0 auto;
+}
+
+.woocommerce-order-details .ingredients-form-link{
+    max-width: 85ch;
+}

@@ -15,15 +15,29 @@ if (!defined('ABSPATH')) {
 
 ?>
 
-<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
+<?php if (!empty($order_pickup_date)): ?>
+    <table class="woocommerce-table woocommerce-table--order-details shop_table pickup_date">
+        <th>
+            <h2>תאריך איסוף הזמנה</h2>
+        </th>
+        <tr>
+            <td style="font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif; border:1px solid #e5e5e5;"
+                valign="top" width="30%">
+                <b><mark><?php echo date('d/m/Y', strtotime($order_pickup_date)) ?></mark></b>
+            </td>
+        </tr>
+    </table>
+<?php endif; ?>
+<table class="woocommerce-table woocommerce-table--order-details shop_table recipient_information">
+    <th><h2>חשוב לדעת</h2></th>
     <tr>
         <td style="font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif; border:1px solid #e5e5e5;"
-            valign="top" width="50%">
+            valign="top" width="30%">
             <strong>כל הזמנה מחויבת במילוי טופס <a style="font-weight:600;"
                     href="<?php echo esc_url($ingredients_form_url); ?>">אישור
                     רכיבים</a></strong>
             <p>יש למלא את הטופס לפני איסוף/קבלת המוצרים, בקישור הבא:</p>
-            <p><a href="<?php echo esc_url($ingredients_form_url); ?>"><?php echo esc_url($ingredients_form_url) ?></a>
+            <p><a class="ingredients-form-link" href="<?php echo esc_url($ingredients_form_url); ?>">https://ingredients-form.form</a>
             </p>
             <p>בפרטי הטופס יש למלא את מספר ההזמנה, שהינו <b><?php echo $order_id ?></b>, ובשורת המייל יש למלא את כתובת
                 המייל

@@ -1,22 +1,3 @@
-.cart-item-thumbnail-gallery {
-    width: 120px;
-}
-.cart-item-thumbnail-gallery img{
-    width: 100% !important;
-}
-
-.cart-item-thumbnail-gallery .slick-dots{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    bottom: unset !important;
-    top: 100%;
-}
-
-.cart-item-thumbnail-gallery .slick-dots li{
-    margin: 0 !important;
-}
-
 .shop_table .cart_item .allergens {
     padding: 0 !important;
 }

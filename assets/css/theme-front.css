@@ -10,11 +10,6 @@
     margin-right: 5px;
 }
 
-#custom-menu-cart .cart_item .variation dt.variation-gluten,
-#custom-menu-cart .cart_item .variation dt.variation-vegan{
-    display: none;
-}
-
 ul.custom-attributes-list li{
     white-space: nowrap;
 }
@@ -63,6 +58,10 @@ table.shop_table .variation dt{
 
 .custom-item-data-container .content{
     transition: all 0.2s linear;
+    max-width: 210px;
+    overflow-x: auto;
+    scrollbar-color: #F095B1 #dfe3e8;
+    scrollbar-width: thin;
 }
 
 .custom-item-data-container:not(.active) .content{
@@ -100,10 +99,10 @@ table.shop_table .variation dt{
 
 @media screen and (max-width: 768px) {
     .custom-item-data-container.active .content{
-        width: 100%;
+        /* width: 100%;
         left: 50%;
         transform: translateX(-50%);
-        text-align: start;
+        text-align: start; */
     }
 }
 
@@ -120,4 +119,27 @@ ul.variation-info{
     list-style: none;
     padding: 0 5px 0 0;
     font-size: 92%;
+}
+
+.woocommerce-cart-form .cart-item-thumbnail-gallery {
+    width: 120px;
+}
+.cart-item-thumbnail-gallery img{
+    width: 100% !important;
+}
+
+.cart-item-thumbnail-gallery .slick-dots{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    bottom: unset !important;
+    top: 100%;
+}
+
+.cart-item-thumbnail-gallery .slick-dots li{
+    margin: 0 !important;
+}
+
+.widget_shopping_cart_content .elementor-menu-cart__products{
+    overflow: unset;
 }

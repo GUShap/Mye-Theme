@@ -198,6 +198,7 @@ add_filter('woocommerce_cart_ready_to_calc_shipping', 'hide_shipping_when_free_s
 function custom_pickup_information()
 {
     $totals_pickup_information_template_path = HE_CHILD_THEME_DIR . '/templates/cart/totals-pickup-information.php';
+    $is_checkout = is_checkout();
 
     if (file_exists($totals_pickup_information_template_path)) {
         include $totals_pickup_information_template_path;
@@ -227,8 +228,15 @@ add_action('woocommerce_after_checkout_billing_form', 'set_order_recipients', 10
 function set_product_pickup_selection()
 {
     $pickup_date_template_path = HE_CHILD_THEME_DIR . '/templates/checkout/pickup-selection.php';
+    $totals_pickup_information_template_path = HE_CHILD_THEME_DIR . '/templates/cart/totals-pickup-information.php';
+    $is_checkout = is_checkout();
+
     if (file_exists($pickup_date_template_path)) {
         include $pickup_date_template_path;
+    }
+
+    if (file_exists($totals_pickup_information_template_path)) {
+        include $totals_pickup_information_template_path;
     }
 }
 add_action('woocommerce_after_checkout_billing_form', 'set_product_pickup_selection', 11);
@@ -296,6 +304,7 @@ function set_order_email_pickup_date($order, $sent_to_admin, $plain_text, $email
 {
     $order_pickup_date = $order->get_meta('pickup_date') ?? '';
     $pickup_date_template_path = HE_CHILD_THEME_DIR . '/woocommerce/emails/email-pickup-date.php';
+
     if (file_exists($pickup_date_template_path)) {
         include $pickup_date_template_path;
     }
